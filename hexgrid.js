@@ -8,27 +8,24 @@ function HexGrid(columns, rows) { //object definition
 		}
 	}
 
-	// todo, make function which gets xy from coll,row and have display use
-	// that instead of calculating locations itself
-	this.display = function(radius) {
-		var inner_radius = (sqrt(3) / 2) * radius;
-		for (var coll = this.model.length - 1; coll >= 0; coll--) {
-			for (var row = this.model[coll].length - 1; row >= 0; row--) {
-				var x = (coll * radius * 3/2) + radius;
-				var y = (row * inner_radius * 2) + inner_radius;
-				if (coll % 2) { //stagger hexagons on odd rows
-					y += inner_radius;
-				}
-				hexagon(x, y, radius);
-			}
-		}
-	}
-
 	this.getNeighborState = function(column, row, neighborIndex) {
 		var c, r = getNeighborCoords(column, row, neighborIndex);
 		return (this.model[c][r]);
 	}
+
+	this.getNeighborHood = function(column, row) {
+		var result = []
+		for (var i = 0; i < 12; i++) {
+			result.push(this.getNeighborState(column, row, i));
+		}
+		return result;
+	}
+
+	this.getState = function(column, row){
+		return this.model[column][row];
+	}
 }
+
 
 
 // 12 total neighbors, neighbor directly above is 0 
@@ -74,13 +71,3 @@ function getNeighborCoords(column, row, neighborIndex) {
 	}
 }
 
-function hexagon(x, y, radius) {
-  var angle = TWO_PI / 6;
-  beginShape();
-  for (var a = 0; a < TWO_PI; a += angle) {
-    var sx = x + cos(a) * radius;
-    var sy = y + sin(a) * radius;
-    vertex(sx, sy);
-  }
-  endShape(CLOSE);	
-}
