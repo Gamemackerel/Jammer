@@ -11,8 +11,9 @@ function HexGrid(columns, rows) { //object definition
   }
 
   this.getNeighborState = function(column, row, neighborIndex) {
-    var c, r = getNeighborCoords(column, row, neighborIndex);
-    return (this.model[c][r]);
+    var coords = getNeighborCoords(column, row, neighborIndex);
+    console.log(coords);
+    return (this.getState(coords[0], coords[1]));
   }
 
   this.getNeighborHood = function(column, row) {
@@ -20,6 +21,7 @@ function HexGrid(columns, rows) { //object definition
     for (var i = 0; i < 12; i++) {
       result.push(this.getNeighborState(column, row, i));
     }
+    result.push(this.getState(column, row));
     return result;
   }
 
@@ -44,47 +46,46 @@ function HexGrid(columns, rows) { //object definition
 }
 
 
-
 // 12 total neighbors, neighbor directly above is 0 
 // and then the indices are enumerated clockwise
 function getNeighborCoords(column, row, neighborIndex) {
   switch(neighborIndex) {
     case 0:
       return [column, row + 1]
-    break;
+      break;
     case 1:
       return [column + 1, row + 2]
-    break;
+      break;
     case 2:
       return [column + 1, row + 1]      
-    break;
+      break;
     case 3:
       return [column + 2, row]
-    break;
+      break;
     case 4:
       return [column + 1, row]
-    break;
+      break;
     case 5:
       return [column + 1, row - 1]
-    break;
+      break;
     case 6:
       return [column, row - 1]
-    break;
+      break;
     case 7:
       return [column - 1, row - 1]
-    break;
+      break;
     case 8:
       return [column - 1, row]
-    break;
+      break;
     case 9:
       return [column - 2, row]
-    break;
+      break;
     case 10:
       return [column - 1, row + 1]
-    break;
+      break;
     case 11:
       return [column - 1, row + 2]
-    break;
+      break;
   }
 }
 

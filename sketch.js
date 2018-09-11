@@ -6,32 +6,42 @@ const COLORMAP = {0: 255, 1: 51};
 var grid;
 var pause = true;
 
+var ruleGrid;
+var rulemaker = false;
+
 
 function setup() {
     createCanvas(WIDTH,HEIGHT);
-    grid = new HexGrid(10, 5);
+    grid = new HexGrid(12, 5);
 }
 
 function draw() {
+  displayHexGrid(grid, RADIUS, 30, 60);
   if (pause) {
-    // open controls for changing seed
+    if (rulemaker) {
+      drawRuleGui();
+    }
   } else {
     // grid.step();
     // displayHexGrid(grid, RADIUS);  
   }
-  displayHexGrid(grid, RADIUS);
 }
 
-function displayHexGrid(grid, radius) {
+function displayHexGrid(grid, radius, positionX, positionY) {
   for (var column = 0; column < grid.model.length; column++) {
-    for (var row = 0; row < grid.model[row].length; row++) {
-      var coords = getXY(column, row, radius);
-      var color = COLORMAP[grid.getState(column, row)];
-      drawHexagon(coords[0], coords[1], radius, color);
+    for (var row = 0; row < grid.model[column].length; row++) {
+      if (grid.getState(column, row) != OUTOFBOUNDS) {
+        var coords = getXY(column, row, radius);
+        var color = COLORMAP[grid.getState(column, row)];
+        drawHexagon(coords[0] + positionX, coords[1] + positionY, radius, color);
+      }
     }
   }
 }
 
+// TODO fix these methods to work with offset hexagon grid. 
+// Perhaps I should make a hexgridview object which stores radius, offsets
+// and controls the model
 function getXY(column, row, radius) {
   var inner_radius = innerHexRadius(radius);
   var x = (column * radius * 3/2) + radius;
@@ -70,8 +80,9 @@ function drawHexagon(x, y, radius, color) {
   noFill();
 }
 
+// TODO factor out seedmaker and rulemaker behavoir into functions
 function mousePressed() {
-  if (pause) {
+  if (pause && !rulemaker) {
     var gridIndex = getCR(mouseX, mouseY, RADIUS);
     if (grid.isInBounds(gridIndex[0], gridIndex[1], RADIUS)) {
       var newState = grid.getState(gridIndex[0], gridIndex[1]) ? 0 : 1;
@@ -81,9 +92,39 @@ function mousePressed() {
   return false;
 }
 
+// TODO esc to exit rulemaker mode
 function keyPressed() {
-  if(keyCode == 32) {
-      pause = !pause;
+  switch(keyCode) {
+    case 32: // space
+        if (!rulemaker) {
+          pause = !pause;
+        }
+        break;
+    case 82: // r
+        if (pause) {
+          startRuleGui();
+        }
+        break
   }
   return 0;
+}
+
+//TODO delete some hexes from rulegrid with setSTate outofbounds
+function startRuleGui() {
+  rulemaker = true;
+  seedmaker = false;
+  ruleGrid = new HexGrid(5,4);
+
+}
+
+// TODO add instruction text
+function drawRuleGui() {
+  drawOverlay();
+  displayHexGrid(ruleGrid, RADIUS * 5/4, WIDTH / 4, 30);
+}
+
+// TODO make overlay fade in
+function drawOverlay() {
+  fill(200, 200, 200, 220);
+  rect(0, 0, WIDTH, HEIGHT);
 }
