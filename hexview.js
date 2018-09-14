@@ -1,12 +1,17 @@
 const COLORMAP = {0: 255, 1: 51};
 
-function HexView(hexGrid, offsetX, offsetY, radius) { //object definition
+function HexGridView(hexGrid, positionX, positionY, radius) { //object definition
+
+  this.columns = hexGrid.model.length;
+  this.rows = hexGrid.model[0].length;
 
   this.innerRadius = (sqrt(3) / 2) * radius;
+  this.naturalOffsetY = -((this.rows) * this.innerRadius) - .5 * this.innerRadius;
+  this.naturalOffsetX = -((this.columns) * radius * 3/4) - .25 * radius;
 
   this.display = function() {
-    for (let column = 0; column < hexGrid.model.length; column++) {
-      for (let row = 0; row < hexGrid.model[column].length; row++) {
+    for (let column = 0; column < this.columns; column++) {
+      for (let row = 0; row < this.rows; row++) {
         if (hexGrid.getState(column, row) != OUTOFBOUNDS) {
           let coords = this.getXY(column, row, radius);
           let color = COLORMAP[hexGrid.getState(column, row)];
@@ -16,23 +21,23 @@ function HexView(hexGrid, offsetX, offsetY, radius) { //object definition
     }
   }
 
-  // TODO fix these methods to work with offset hexagon grid. 
-  // Perhaps I should make a hexgridview object which stores radius, offsets
-  // and controls the model
+  
   this.getXY = function(column, row) {
     let x = (column * radius * 3/2) + radius;
     let y = (row * this.innerRadius * 2) + this.innerRadius;
-    if (column % 2) { //stagger hexagons on odd rows
+    if (column % 2) { //stagger hexagons on odd columns
       y += this.innerRadius;
     }
-    return [x + offsetX, y + offsetY];
+    return [x + positionX + this.naturalOffsetX, y + positionY + this.naturalOffsetY];
   }
 
+  // This function could be improved to better map the hexagon either by
+  // using vertexes or inner and outer circles  
   this.getCR = function(x, y) {
-    x -= offsetX;
-    y -= offsetY;
+    x -= positionX + this.naturalOffsetX;
+    y -= positionY + this.naturalOffsetY;
     let column = Math.round((2/3)*(x/radius - 1))
-    if (column % 2) { //stagger hexagons on odd rows
+    if (column % 2) { //stagger hexagons on odd columns
       y -= this.innerRadius;
     }
     let row = Math.round((y - this.innerRadius) / (this.innerRadius * 2))
@@ -40,3 +45,6 @@ function HexView(hexGrid, offsetX, offsetY, radius) { //object definition
     return result;
   }
 }
+
+
+

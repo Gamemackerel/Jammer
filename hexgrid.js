@@ -3,22 +3,22 @@ const OUTOFBOUNDS = -1;
 function HexGrid(columns, rows) { //object definition
   this.model = []
 
-  for (var i = 0; i < columns; i++) {
+  for (let i = 0; i < columns; i++) {
     this.model[i] = []
-    for (var j = 0; j < rows; j++) {
+    for (let j = 0; j < rows; j++) {
       this.model[i][j] = 0;
     }
   }
 
   this.getNeighborState = function(column, row, neighborIndex) {
-    var coords = getNeighborCoords(column, row, neighborIndex);
+    let coords = getNeighborCoords(column, row, neighborIndex);
     console.log(coords);
     return (this.getState(coords[0], coords[1]));
   }
 
   this.getNeighborHood = function(column, row) {
-    var result = []
-    for (var i = 0; i < 12; i++) {
+    let result = []
+    for (let i = 0; i < 12; i++) {
       result.push(this.getNeighborState(column, row, i));
     }
     result.push(this.getState(column, row));
@@ -34,9 +34,15 @@ function HexGrid(columns, rows) { //object definition
   }
 
   this.setState = function(column, row, newState) {
-    if (this.isInBounds(column, row)) {
+    if (this.getState(column, row) != OUTOFBOUNDS) {
       this.model[column][row] = newState;
     } 
+  }
+
+  this.massSetState = function(coordsAndStates) {
+    for (var i = 0; i < coordsAndStates.length; i++) {
+      this.setState(coordsAndStates[i][0], coordsAndStates[i][1], coordsAndStates[i][2]);
+    }      
   }
 
   this.isInBounds = function(column, row) {
