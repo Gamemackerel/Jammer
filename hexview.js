@@ -2,8 +2,8 @@ const COLORMAP = {0: 255, 1: 51};
 
 function HexGridView(hexGrid, positionX, positionY, radius) { //object definition
 
-  this.columns = hexGrid.model.length;
-  this.rows = hexGrid.model[0].length;
+  this.columns = hexGrid.gridModel.length;
+  this.rows = hexGrid.gridModel[0].length;
 
   this.innerRadius = (sqrt(3) / 2) * radius;
   this.naturalOffsetY = -((this.rows) * this.innerRadius) - .5 * this.innerRadius;

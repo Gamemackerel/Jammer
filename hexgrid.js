@@ -1,18 +1,19 @@
 const OUTOFBOUNDS = -1;
 
 function HexGrid(columns, rows) { //object definition
-  this.model = []
+  this.gridModel = []
+
+  this.rules = {}
 
   for (let i = 0; i < columns; i++) {
-    this.model[i] = []
+    this.gridModel[i] = []
     for (let j = 0; j < rows; j++) {
-      this.model[i][j] = 0;
+      this.gridModel[i][j] = 0;
     }
   }
 
   this.getNeighborState = function(column, row, neighborIndex) {
     let coords = getNeighborCoords(column, row, neighborIndex);
-    console.log(coords);
     return (this.getState(coords[0], coords[1]));
   }
 
@@ -29,13 +30,13 @@ function HexGrid(columns, rows) { //object definition
     if (!this.isInBounds(column, row)) {
       return OUTOFBOUNDS;
     } else {
-      return this.model[column][row];
+      return this.gridModel[column][row];
     }
   }
 
   this.setState = function(column, row, newState) {
     if (this.getState(column, row) != OUTOFBOUNDS) {
-      this.model[column][row] = newState;
+      this.gridModel[column][row] = newState;
     } 
   }
 
@@ -46,8 +47,20 @@ function HexGrid(columns, rows) { //object definition
   }
 
   this.isInBounds = function(column, row) {
-    return (((column >= 0) && (column < this.model.length)) 
-        && ((row >= 0) && (row < this.model[0].length)))
+    return (((column >= 0) && (column < this.gridModel.length)) 
+        && ((row >= 0) && (row < this.gridModel[0].length)))
+  }
+
+  this.newRule = function(neighborhood, nextState) {
+    this.rules[neighborhood] = nextState;
+  }
+
+  this.getRule = function(neighborhood) {
+    if (!(neighborhood in this.rules)) {
+      return 0;
+    } else {
+      return this.rules[neighborhood];  
+    }
   }
 }
 

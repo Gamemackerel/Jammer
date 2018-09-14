@@ -1,6 +1,6 @@
 const WIDTH = 1920;
 const HEIGHT = 1080;
-const RADIUS = 100;
+const RADIUS = 80;
 
 var grid;
 var gridView;
@@ -10,11 +10,27 @@ var ruleGrid;
 var ruleGridView;
 var rulemaker = false;
 
+var font,
+  fontsize = 40
+
+function preload() {
+  // Ensure the .ttf or .otf font stored in the assets directory
+  // is loaded before setup() and draw() are called
+  font = loadFont('assets/ABeeZee/ABeeZee-Regular.otf');
+}
+
+
 
 function setup() {
+    // Create canvas and main grid
     createCanvas(WIDTH,HEIGHT);
-    grid = new HexGrid(12, 5);
+    grid = new HexGrid(14, 7);
     gridView = new HexGridView(grid, WIDTH / 2, HEIGHT / 2, RADIUS);
+
+    // Set text characteristics
+    textFont(font);
+    textSize(fontsize);
+    textAlign(CENTER, CENTER);
 }
 
 function draw() {
@@ -22,7 +38,7 @@ function draw() {
   gridView.display();
   if (pause) {
     if (rulemaker) {
-      drawRuleGui();      
+      drawRuleMakerGui();      
     }
   } else {
     // grid.step();
@@ -99,12 +115,13 @@ function keyPressed() {
 
 function startRuleGui() {
   rulemaker = true;
-  ruleGrid = new HexGrid(5,4);
+  ruleGrid = new HexGrid(9,4);
 
-  ruleGridView = new HexGridView(ruleGrid, WIDTH / 2, (HEIGHT / 2) - (sqrt(3) / 4) * RADIUS, RADIUS * 5/4);
+  ruleGridView = new HexGridView(ruleGrid, WIDTH / 2, (HEIGHT / 2) - (sqrt(3) / 4) * RADIUS, RADIUS * 6/5);
 
   // Trim grid down to a single neighborhood
-  ruleGrid.massSetState([
+
+  trimMask = [
       [0,0,-1],
       [2,0,-1],
       [4,0,-1],
@@ -112,13 +129,37 @@ function startRuleGui() {
       [4,1,-1],
       [0,3,-1],
       [4,3,-1]
-  ]);
+  ];
+
+  for (var i = 0; i < 5; i++) {
+    trimMask.push([5, i, -1]);
+    trimMask.push([6, i, -1]);
+    trimMask.push([7, i, -1]);
+    if (i != 2) {
+      trimMask.push([8, i, -1]);
+    }
+  }
+
+  ruleGrid.massSetState(trimMask);
 }
 
-// TODO add instruction text
-function drawRuleGui() {
+function drawRuleMakerGui() {
   drawOverlay();
   ruleGridView.display();
+  fill(65);
+
+  // title of rule maker gui
+  text("New Transition Rule", WIDTH / 2, HEIGHT / 16);
+
+  // nice little arrow showing transition direction. Uses lots of magic numbers so with size change this part will need adjustment
+  stroke(100);
+  strokeWeight(8);
+  line(WIDTH * 19/32, HEIGHT / 2 + 8, WIDTH * 23/32, HEIGHT / 2 + 8);
+  triangle(WIDTH * 23/32, HEIGHT / 2 + 8, WIDTH * 23/32 - 4, HEIGHT / 2 + 4, WIDTH * 23/32 - 4, HEIGHT / 2 + 12)
+}
+
+function drawButton(text, fn) {
+
 }
 
 // TODO make overlay fade in
