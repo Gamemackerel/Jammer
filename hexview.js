@@ -1,4 +1,4 @@
-const COLORMAP = {0: 255, 1: 51};
+const COLORMAP = {0: 255, 1: 70};
 
 function HexGridView(hexGrid, positionX, positionY, radius) { //object definition
 

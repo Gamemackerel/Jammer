@@ -17,7 +17,7 @@ function HexGrid(columns, rows) { //object definition
     return (this.getState(coords[0], coords[1]));
   }
 
-  this.getNeighborHood = function(column, row) {
+  this.getNeighborhood = function(column, row) {
     let result = []
     for (let i = 0; i < 12; i++) {
       result.push(this.getNeighborState(column, row, i));
@@ -62,48 +62,61 @@ function HexGrid(columns, rows) { //object definition
       return this.rules[neighborhood];  
     }
   }
+
+  this.step = function() {
+    let nextGen = []; 
+    for (let i = 0; i < this.gridModel.length; i++) {
+      nextGen[i] = [];
+      for (let j = 0; j < this.gridModel[i].length; j++) {
+        nextGen[i][j] = this.getRule(this.getNeighborhood(i, j));
+      }
+    }
+    this.gridModel = nextGen;
+  }
+
 }
 
 
 // 12 total neighbors, neighbor directly above is 0 
 // and then the indices are enumerated clockwise
 function getNeighborCoords(column, row, neighborIndex) {
+  let stagger = column % 2;
   switch(neighborIndex) {
     case 0:
-      return [column, row + 1]
+      return [column, row - 1]
       break;
     case 1:
-      return [column + 1, row + 2]
+      return [column + 1, stagger + row - 2]
       break;
     case 2:
-      return [column + 1, row + 1]      
+      return [column + 1, stagger + row - 1]      
       break;
     case 3:
       return [column + 2, row]
       break;
     case 4:
-      return [column + 1, row]
+      return [column + 1, stagger + row]
       break;
     case 5:
-      return [column + 1, row - 1]
+      return [column + 1, stagger + row + 1]
       break;
     case 6:
-      return [column, row - 1]
+      return [column, row + 1]
       break;
     case 7:
-      return [column - 1, row - 1]
+      return [column - 1, stagger + row + 1]
       break;
     case 8:
-      return [column - 1, row]
+      return [column - 1, stagger + row]
       break;
     case 9:
       return [column - 2, row]
       break;
     case 10:
-      return [column - 1, row + 1]
+      return [column - 1, stagger + row - 1]
       break;
     case 11:
-      return [column - 1, row + 2]
+      return [column - 1, stagger + row - 2]
       break;
   }
 }

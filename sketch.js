@@ -1,14 +1,19 @@
+'use strict';
+
 const WIDTH = 1920;
 const HEIGHT = 1080;
 const RADIUS = 80;
 
 var grid;
 var gridView;
-var pause = true;
+var isPaused = true;
 
 var ruleGrid;
 var ruleGridView;
-var rulemaker = false;
+var isRuleMaker = false;
+
+var stepTimer;
+var tempo = 1000;
 
 var font,
   fontsize = 40
@@ -36,19 +41,29 @@ function setup() {
 function draw() {
   clear();
   gridView.display();
-  if (pause) {
-    if (rulemaker) {
-      drawRuleMakerGui();      
+  if (isPaused) {
+    if (isRuleMaker) {
+      drawRuleMakerGui(); 
+    } else {
+      stroke(100);
+      strokeWeight(2);
+      text("Paused", WIDTH / 2, HEIGHT / 2);
+      noStroke();
     }
   } else {
-    // grid.step();
     // displayHexGrid(grid, RADIUS);  
   }
+
+  // lightUpTheNeighborhood(3, 3);
+  // lightUpTheNeighborhood(8, 3);
 }
+
+
 
 
 function drawHexagon(x, y, radius, color) {
   fill(color);
+  stroke(50)
   strokeWeight(4);
   let angle = TWO_PI / 6;
   beginShape();
@@ -66,8 +81,8 @@ function drawHexagon(x, y, radius, color) {
 }
 
 function mousePressed() {
-  if (pause) {
-    if (rulemaker) {
+  if (isPaused) {
+    if (isRuleMaker) {
       ruleMakerMouseEvent();
     } else {
       seedMakerMouseEvent();  
@@ -81,12 +96,14 @@ function seedMakerMouseEvent() {
     if (grid.isInBounds(gridIndex[0], gridIndex[1])) {
       let newState = grid.getState(gridIndex[0], gridIndex[1]) ? 0 : 1;
       grid.setState(gridIndex[0], gridIndex[1], newState);
+      console.log(gridIndex[0], gridIndex[1], newState);
     }
 }
 
 function ruleMakerMouseEvent() {
   let gridIndex = ruleGridView.getCR(mouseX, mouseY);
     if (ruleGrid.isInBounds(gridIndex[0], gridIndex[1])) {
+      console.log(gridIndex[0], gridIndex[1]);
       let newState = ruleGrid.getState(gridIndex[0], gridIndex[1]) ? 0 : 1;
       ruleGrid.setState(gridIndex[0], gridIndex[1], newState);
     }
@@ -95,33 +112,57 @@ function ruleMakerMouseEvent() {
 function keyPressed() {
   switch(keyCode) {
     case 32: // space
-        if (!rulemaker) {
-          pause = !pause;
+        if (!isRuleMaker) {
+          if (isPaused) {
+            unpause();
+          } else {
+            pause();
+          }
         }
         break;
     case 82: // r
-        if (pause) {
+        if (isPaused) {
           startRuleGui();
         }
         break;
     case 27: //esc
-        if (rulemaker) {
-          rulemaker = false;
+        if (isRuleMaker) {
+          isRuleMaker = false;
+        }
+        break;
+    case 13: //enter
+        if (isRuleMaker) {
+          saveRule();
+          isRuleMaker = false;
         }
         break;
   }
   return 0;
 }
 
+function pause() {
+  isPaused = true;
+  window.clearInterval(stepTimer);
+}
+
+function unpause() {
+  isPaused = false;
+  stepTimer = window.setInterval(timerGo, tempo);
+}
+
+function timerGo() {
+  grid.step();
+}
+
 function startRuleGui() {
-  rulemaker = true;
+  isRuleMaker = true;
   ruleGrid = new HexGrid(9,4);
 
   ruleGridView = new HexGridView(ruleGrid, WIDTH / 2, (HEIGHT / 2) - (sqrt(3) / 4) * RADIUS, RADIUS * 6/5);
 
   // Trim grid down to a single neighborhood
 
-  trimMask = [
+  let trimMask = [
       [0,0,-1],
       [2,0,-1],
       [4,0,-1],
@@ -156,14 +197,32 @@ function drawRuleMakerGui() {
   strokeWeight(8);
   line(WIDTH * 19/32, HEIGHT / 2 + 8, WIDTH * 23/32, HEIGHT / 2 + 8);
   triangle(WIDTH * 23/32, HEIGHT / 2 + 8, WIDTH * 23/32 - 4, HEIGHT / 2 + 4, WIDTH * 23/32 - 4, HEIGHT / 2 + 12)
+  noStroke();
 }
 
-function drawButton(text, fn) {
+function saveRule() {
+  let neighborhood = ruleGrid.getNeighborhood(2, 2);
+  let nextState = ruleGrid.getState(8, 2);
 
+  grid.newRule(neighborhood, nextState);
 }
 
 // TODO make overlay fade in
 function drawOverlay() {
   fill(200, 200, 200, 220);
   rect(0, 0, WIDTH, HEIGHT);
+}
+
+// to debug incorrect neighbor mapping
+function lightUpTheNeighborhood(column, row) {
+  console.log("lighting up");
+  var nbs = []
+  for (let i = 0; i < 12; i++) {
+    nbs.push(getNeighborCoords(column, row, i));
+  }
+  for (var i = 0; i < nbs.length; i++) {
+    let xy = gridView.getXY(nbs[i][0], nbs[i][1]);
+    drawHexagon(xy[0], xy[1], RADIUS, 200);
+    text(i, xy[0], xy[1]);
+  }
 }
