@@ -24,7 +24,9 @@ function preload() {
   font = loadFont('assets/ABeeZee/ABeeZee-Regular.otf');
 }
 
-
+// TODO add a gui menu from which user can interact
+// with ruleset as json, tempo can be changed, infinity
+// mode can be toggled, and midi data can be downloaded?
 
 function setup() {
     // Create canvas and main grid
@@ -96,14 +98,12 @@ function seedMakerMouseEvent() {
     if (grid.isInBounds(gridIndex[0], gridIndex[1])) {
       let newState = grid.getState(gridIndex[0], gridIndex[1]) ? 0 : 1;
       grid.setState(gridIndex[0], gridIndex[1], newState);
-      console.log(gridIndex[0], gridIndex[1], newState);
     }
 }
 
 function ruleMakerMouseEvent() {
   let gridIndex = ruleGridView.getCR(mouseX, mouseY);
     if (ruleGrid.isInBounds(gridIndex[0], gridIndex[1])) {
-      console.log(gridIndex[0], gridIndex[1]);
       let newState = ruleGrid.getState(gridIndex[0], gridIndex[1]) ? 0 : 1;
       ruleGrid.setState(gridIndex[0], gridIndex[1], newState);
     }

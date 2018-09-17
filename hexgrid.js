@@ -1,12 +1,12 @@
 const OUTOFBOUNDS = -1;
 
 function HexGrid(columns, rows) { //object definition
-  this.gridModel = []
-
-  this.rules = {}
+  this.gridModel = [];
+  this.rules = {};
+  this.infinityMode = true;
 
   for (let i = 0; i < columns; i++) {
-    this.gridModel[i] = []
+    this.gridModel[i] = [];
     for (let j = 0; j < rows; j++) {
       this.gridModel[i][j] = 0;
     }
@@ -27,6 +27,9 @@ function HexGrid(columns, rows) { //object definition
   }
 
   this.getState = function(column, row){
+    if (this.infinityMode) {
+      return this.gridModel[((column % columns) + columns) % columns][((row % rows) + rows) % rows];
+    } else 
     if (!this.isInBounds(column, row)) {
       return OUTOFBOUNDS;
     } else {
@@ -35,7 +38,9 @@ function HexGrid(columns, rows) { //object definition
   }
 
   this.setState = function(column, row, newState) {
-    if (this.getState(column, row) != OUTOFBOUNDS) {
+    if (this.infinityMode) {
+      this.gridModel[((column % columns) + columns) % columns][((row % rows) + rows) % rows] = newState;
+    } else if (this.getState(column, row) != OUTOFBOUNDS) {
       this.gridModel[column][row] = newState;
     } 
   }
