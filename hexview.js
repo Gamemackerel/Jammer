@@ -32,7 +32,7 @@ function HexGridView(hexGrid, positionX, positionY, radius) { //object definitio
   }
 
   // This function could be improved to better map the hexagon either by
-  // using vertexes or inner and outer circles  
+  // using vertexes or a clever composition of inner and outer circles
   this.getCR = function(x, y) {
     x -= positionX + this.naturalOffsetX;
     y -= positionY + this.naturalOffsetY;
