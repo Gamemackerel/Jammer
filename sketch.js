@@ -2,7 +2,7 @@
 
 const WIDTH = 1920;
 const HEIGHT = 1080;
-const RADIUS = 80;
+const RADIUS = 70;
 
 var grid;
 var gridView;
@@ -31,7 +31,7 @@ function preload() {
 function setup() {
     // Create canvas and main grid
     createCanvas(WIDTH,HEIGHT);
-    grid = new HexGrid(14, 7);
+    grid = new HexGrid(14, 8);
     gridView = new HexGridView(grid, WIDTH / 2, HEIGHT / 2, RADIUS);
 
     // Set text characteristics
@@ -156,12 +156,12 @@ function timerGo() {
 
 function startRuleGui() {
   isRuleMaker = true;
-  ruleGrid = new HexGrid(9,4);
+  ruleGrid = new HexGrid(10,5);
 
-  ruleGridView = new HexGridView(ruleGrid, WIDTH / 2, (HEIGHT / 2) - (sqrt(3) / 4) * RADIUS, RADIUS * 6/5);
+  ruleGridView = new HexGridView(ruleGrid, WIDTH / 2, (HEIGHT / 2), RADIUS * 6/5);
 
   // Trim grid down to a single neighborhood
-
+  // TODO fix trim mask
   let trimMask = [
       [0,0,-1],
       [2,0,-1],
@@ -181,7 +181,7 @@ function startRuleGui() {
     }
   }
 
-  ruleGrid.massSetState(trimMask);
+  // ruleGrid.massSetState(trimMask);
 }
 
 function drawRuleMakerGui() {
@@ -193,14 +193,16 @@ function drawRuleMakerGui() {
   text("New Transition Rule", WIDTH / 2, HEIGHT / 16);
 
   // nice little arrow showing transition direction. Uses lots of magic numbers so with size change this part will need adjustment
+  // TODO move arrow up a little bit
   stroke(100);
   strokeWeight(8);
-  line(WIDTH * 19/32, HEIGHT / 2 + 8, WIDTH * 23/32, HEIGHT / 2 + 8);
-  triangle(WIDTH * 23/32, HEIGHT / 2 + 8, WIDTH * 23/32 - 4, HEIGHT / 2 + 4, WIDTH * 23/32 - 4, HEIGHT / 2 + 12)
+  line(WIDTH * 19/32, HEIGHT / 2, WIDTH * 23/32, HEIGHT / 2);
+  triangle(WIDTH * 23/32, HEIGHT / 2, WIDTH * 23/32 - 4, HEIGHT / 2 + 4, WIDTH * 23/32 - 4, HEIGHT / 2 - 4)
   noStroke();
 }
 
 function saveRule() {
+  //TODO change control cell index
   let neighborhood = ruleGrid.getNeighborhood(2, 2);
   let nextState = ruleGrid.getState(8, 2);
 

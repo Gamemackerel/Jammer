@@ -5,10 +5,16 @@ function HexGrid(columns, rows) { //object definition
   this.rules = {};
   this.infinityMode = true;
 
+
   for (let i = 0; i < columns; i++) {
+    let stagger = !(i % 2);
     this.gridModel[i] = [];
     for (let j = 0; j < rows; j++) {
-      this.gridModel[i][j] = 0;
+      if (stagger && (j == (rows - 1))) { //odd rows will 
+        this.gridModel[i][j] =  OUTOFBOUNDS;  
+      } else {
+        this.gridModel[i][j] = 0;
+      }
     }
   }
 
@@ -85,7 +91,7 @@ function HexGrid(columns, rows) { //object definition
 // 12 total neighbors, neighbor directly above is 0 
 // and then the indices are enumerated clockwise
 function getNeighborCoords(column, row, neighborIndex) {
-  let stagger = column % 2;
+  let stagger = !(column % 2);
   switch(neighborIndex) {
     case 0:
       return [column, row - 1]

@@ -25,7 +25,7 @@ function HexGridView(hexGrid, positionX, positionY, radius) { //object definitio
   this.getXY = function(column, row) {
     let x = (column * radius * 3/2) + radius;
     let y = (row * this.innerRadius * 2) + this.innerRadius;
-    if (column % 2) { //stagger hexagons on odd columns
+    if (!(column % 2)) { //stagger hexagons on odd columns
       y += this.innerRadius;
     }
     return [x + positionX + this.naturalOffsetX, y + positionY + this.naturalOffsetY];
@@ -37,7 +37,7 @@ function HexGridView(hexGrid, positionX, positionY, radius) { //object definitio
     x -= positionX + this.naturalOffsetX;
     y -= positionY + this.naturalOffsetY;
     let column = Math.round((2/3)*(x/radius - 1))
-    if (column % 2) { //stagger hexagons on odd columns
+    if (!(column % 2)) { //stagger hexagons on odd columns
       y -= this.innerRadius;
     }
     let row = Math.round((y - this.innerRadius) / (this.innerRadius * 2))
