@@ -44,7 +44,7 @@ function HexGrid(columns, rows) { //object definition
   }
 
   this.setState = function(column, row, newState) {
-    if (this.infinityMode) {
+    if (this.infinityMode && this.getState(column, row) != OUTOFBOUNDS) {
       this.gridModel[((column % columns) + columns) % columns][((row % rows) + rows) % rows] = newState;
     } else if (this.getState(column, row) != OUTOFBOUNDS) {
       this.gridModel[column][row] = newState;
