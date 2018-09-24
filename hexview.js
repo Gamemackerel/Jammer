@@ -1,7 +1,6 @@
 const COLORMAP = {0: 255, 1: 0};
 
 function HexGridView(hexGrid, positionX, positionY, radius) { //object definition
-
   this.columns = hexGrid.gridModel.length;
   this.rows = hexGrid.gridModel[0].length;
 
@@ -9,6 +8,8 @@ function HexGridView(hexGrid, positionX, positionY, radius) { //object definitio
   this.naturalOffsetY = -((this.rows) * this.innerRadius) - .5 * this.innerRadius;
   this.naturalOffsetX = -((this.columns) * radius * 3/4) - .25 * radius;
 
+
+  // TODO optimize this method since it gets run every frame
   this.display = function() {
     for (let column = 0; column < this.columns; column++) {
       for (let row = 0; row < this.rows; row++) {
@@ -45,6 +46,8 @@ function HexGridView(hexGrid, positionX, positionY, radius) { //object definitio
     return result;
   }
 }
+
+
 
 
 

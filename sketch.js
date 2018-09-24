@@ -3,6 +3,7 @@
 const WIDTH = 1920;
 const HEIGHT = 1080;
 const RADIUS = 70;
+const MUSIC_GRID = harmoicTableMidiLayout();
 
 var grid;
 var gridView;
@@ -13,7 +14,10 @@ var ruleGridView;
 var isRuleMaker = false;
 
 var stepTimer;
-var tempo = 1000;
+var tempo = 500;
+
+var polysynth;
+
 
 var font,
   fontsize = 40
@@ -22,6 +26,10 @@ function preload() {
   // Ensure the .ttf or .otf font stored in the assets directory
   // is loaded before setup() and draw() are called
   font = loadFont('assets/ABeeZee/ABeeZee-Regular.otf');
+
+  grid = new HexGrid(14, 8);
+  gridView = new HexGridView(grid, WIDTH / 2, HEIGHT / 2, RADIUS);
+  polysynth = new p5.PolySynth(p5.MonoSynth, 16);
 }
 
 // TODO add a gui menu from which user can interact
@@ -31,8 +39,7 @@ function preload() {
 function setup() {
     // Create canvas and main grid
     createCanvas(WIDTH,HEIGHT);
-    grid = new HexGrid(14, 8);
-    gridView = new HexGridView(grid, WIDTH / 2, HEIGHT / 2, RADIUS);
+    
 
     // Set text characteristics
     textFont(font);
@@ -57,13 +64,10 @@ function draw() {
   }
 
   // lightUpTheNeighborhood(3, 3);
-  // lightUpTheNeighborhood(8, 3);
+  // lightUpTheNeighborhood(8, 2);
 }
 
-
-
-
-function drawHexagon(x, y, radius, color) {
+function drawHexagon(x, y, radius, color, display_text) {
   fill(color);
   stroke(50)
   strokeWeight(4);
@@ -77,9 +81,14 @@ function drawHexagon(x, y, radius, color) {
   endShape(CLOSE);
   noFill();
   // showing circles for (debug)?
-  strokeWeight(1);
-  ellipse(x,y,radius * 2);
-  ellipse(x,y,(sqrt(3) / 2) * radius * 2);
+  // strokeWeight(1);
+  // ellipse(x,y,radius * 2);
+  // ellipse(x,y,(sqrt(3) / 2) * radius * 2);
+
+  if (!(typeof display_text === "undefined")) {
+    strokeWeight(4);
+    text(display_text, x, y);
+  }
 }
 
 function mousePressed() {
@@ -98,6 +107,10 @@ function seedMakerMouseEvent() {
     if (grid.isInBounds(gridIndex[0], gridIndex[1])) {
       let newState = grid.getState(gridIndex[0], gridIndex[1]) ? 0 : 1;
       grid.setState(gridIndex[0], gridIndex[1], newState);
+    }
+
+    if (grid.getState(gridIndex[0], gridIndex[1]) == 1) {
+      playNote(gridIndex[0], gridIndex[1]);
     }
 }
 
@@ -152,6 +165,7 @@ function unpause() {
 
 function timerGo() {
   grid.step();
+  playNotes();
 }
 
 function startRuleGui() {
@@ -161,28 +175,32 @@ function startRuleGui() {
   ruleGridView = new HexGridView(ruleGrid, WIDTH / 2, (HEIGHT / 2), RADIUS * 6/5);
 
   // Trim grid down to a single neighborhood
-  // TODO fix trim mask
-  let trimMask = [
-      [0,0,-1],
-      [2,0,-1],
-      [4,0,-1],
-      [0,1,-1],
-      [4,1,-1],
-      [0,3,-1],
-      [4,3,-1]
-  ];
+  // and the next generation state
+  shapeRuleGrid(ruleGrid);
+}
 
-  for (var i = 0; i < 5; i++) {
-    trimMask.push([5, i, -1]);
-    trimMask.push([6, i, -1]);
-    trimMask.push([7, i, -1]);
-    if (i != 2) {
-      trimMask.push([8, i, -1]);
-    }
+function shapeRuleGrid(ruleGrid) {
+  let center_of_attention = [3, 2];
+  let keepMask = {};
+  for (let i = 0; i < 12; i++) {
+    keepMask[(getNeighborCoords(center_of_attention[0], center_of_attention[1], i))] = true;
   }
 
-  // ruleGrid.massSetState(trimMask);
+  keepMask[center_of_attention] = true;
+  keepMask[[9,2]] = true;
+
+  
+  let trimMask = [];
+  for (let i = 0; i < 10; i++) {
+    for (let j = 0; j < 5; j++) {
+      if (!keepMask.hasOwnProperty([i,j])) {
+        trimMask.push([i,j,-1]);
+      }
+    }
+  }
+  ruleGrid.massSetState(trimMask);
 }
+
 
 function drawRuleMakerGui() {
   drawOverlay();
@@ -200,12 +218,10 @@ function drawRuleMakerGui() {
   triangle(WIDTH * 23/32, HEIGHT / 2, WIDTH * 23/32 - 4, HEIGHT / 2 + 4, WIDTH * 23/32 - 4, HEIGHT / 2 - 4)
   noStroke();
 }
-
+//TODO move rulemaker methods into a seperate file
 function saveRule() {
-  //TODO change control cell index
-  let neighborhood = ruleGrid.getNeighborhood(2, 2);
-  let nextState = ruleGrid.getState(8, 2);
-
+  let neighborhood = ruleGrid.getNeighborhood(3, 2);
+  let nextState = ruleGrid.getState(9, 2);
   grid.newRule(neighborhood, nextState);
 }
 
@@ -213,6 +229,22 @@ function saveRule() {
 function drawOverlay() {
   fill(200, 200, 200, 220);
   rect(0, 0, WIDTH, HEIGHT);
+}
+
+// TODO find a way to play midi notes that doesnt sound like trash
+function playNote(column, row) {
+  polysynth.play(MUSIC_GRID[column][row], 1, 0, .2);
+}
+
+// TODO fix this method so that chords can be played
+function playNotes() {
+  for (let column = 0; column < grid.columns; column++) {
+    for (let row = 0; row < grid.rows; row++) {
+      if (grid.getState(column, row) == 1) {
+        playNote(column, row);
+      }
+    }
+  }
 }
 
 // to debug incorrect neighbor mapping
@@ -227,4 +259,23 @@ function lightUpTheNeighborhood(column, row) {
     drawHexagon(xy[0], xy[1], RADIUS, 200);
     text(i, xy[0], xy[1]);
   }
+}
+
+function harmoicTableMidiLayout() {
+  let first_column_first_row_midi = 115;
+  let second_column_first_row_midi = 119;
+  let grid = [];
+  for (let column = 0; column < 14; column++) {
+    grid[column] = [];
+    let midi_column_start;
+    if (!(column % 2)) {
+      midi_column_start = first_column_first_row_midi - Math.floor(column/2);
+    } else {
+      midi_column_start = second_column_first_row_midi - Math.floor(column/2);
+    }
+    for (let row = 0; row < 8; row++) {
+      grid[column][row] = midi_column_start - 7 * row;
+    }
+  }
+  return grid;
 }
