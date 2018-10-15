@@ -1,5 +1,9 @@
 'use strict';
 
+// TODO add a gui menu from which user can interact
+// with ruleset as json, tempo can be changed, infinity
+// mode can be toggled, and midi data can be downloaded
+
 //options (TODO make at least some of these dynamically generated based on window size)
 const WIDTH = 1920;
 const HEIGHT = 1080;
@@ -32,16 +36,10 @@ function preload() {
   gridView = new HexGridView(grid, WIDTH / 2, HEIGHT / 2, RADIUS);
 }
 
-// TODO add a gui menu from which user can interact
-// with ruleset as json, tempo can be changed, infinity
-// mode can be toggled, and midi data can be downloaded?
-
 function setup() {
     // Create canvas and main grid
     createCanvas(WIDTH,HEIGHT);
     
-
-
     // Set text characteristics
     textFont(font);
     textSize(fontsize);
@@ -85,7 +83,7 @@ function drawHexagon(x, y, radius, color, display_text) {
   endShape(CLOSE);
   noFill();
 
-  // Can use composition of these circles to better map hexagon clicking
+  // Could use composition of these circles to better map hexagon clicking
   // strokeWeight(1);
   // ellipse(x,y,radius * 2);
   // ellipse(x,y,(sqrt(3) / 2) * radius * 2);
@@ -173,13 +171,14 @@ function timerGo() {
   playNotes();
 }
 
+//TODO move rulemaker methods into a seperate oop file
 function startRuleGui() {
   isRuleMaker = true;
   ruleGrid = new HexGrid(10,5);
 
   ruleGridView = new HexGridView(ruleGrid, WIDTH / 2, (HEIGHT / 2), RADIUS * 6/5);
 
-  // Trim grid down to a single neighborhood
+  // Trims grid down to a single neighborhood
   // and the next generation state
   shapeRuleGrid(ruleGrid);
 }
@@ -206,7 +205,6 @@ function shapeRuleGrid(ruleGrid) {
   ruleGrid.massSetState(trimMask);
 }
 
-
 function drawRuleMakerGui() {
   drawOverlay();
   ruleGridView.display();
@@ -216,38 +214,37 @@ function drawRuleMakerGui() {
   text("New Transition Rule", WIDTH / 2, HEIGHT / 16);
 
   // nice little arrow showing transition direction. Uses lots of magic numbers so with size change this part will need adjustment
-  // TODO create arrow function, move arrow up a little bit
+  // TODO create arrow function that works like line
+  // TODO fix arrow location on rule def
   stroke(100);
   strokeWeight(8);
   line(WIDTH * 19/32, HEIGHT / 2, WIDTH * 23/32, HEIGHT / 2);
   triangle(WIDTH * 23/32, HEIGHT / 2, WIDTH * 23/32 - 4, HEIGHT / 2 + 4, WIDTH * 23/32 - 4, HEIGHT / 2 - 4)
   noStroke();
 }
-//TODO move rulemaker methods into a seperate file
+
 function saveRule() {
   let neighborhood = ruleGrid.getNeighborhood(3, 2);
   let nextState = ruleGrid.getState(9, 2);
   grid.newRule(neighborhood, nextState);
 }
 
-// TODO make overlay fade in
 function drawOverlay() {
   fill(200, 200, 200, 220);
   rect(0, 0, WIDTH, HEIGHT);
 }
 
-// TODO find a way to play midi notes that doesnt sound like trash
+//TODO move sound "view" into either hexview class or seperate oop file 
 function playNote(column, row) {
   MIDI.setVolume(0, 127);
   MIDI.noteOn(0,MUSIC_GRID[column][row], 70, 0,);
   MIDI.noteOff(0,MUSIC_GRID[column][row], 0.2);
 }
 
-// TODO fix this method so that chords can be played
 function playNotes() {
   let notes = [];
   for (let column = 0; column < grid.columns; column++) {
-    for (let row = 0; row < grid.rows; row++) {
+    for (let row = 0; row < grid.rows(column); row++) {
       if (grid.getState(column, row) == 1) {
         notes.push(MUSIC_GRID[column][row]);
       }
@@ -256,20 +253,6 @@ function playNotes() {
   MIDI.setVolume(0, 127);
   MIDI.chordOn(0, notes, 70, 0);
   MIDI.chordOff(0, notes, 0.2);
-}
-
-// to debug incorrect neighbor mapping
-function lightUpTheNeighborhood(column, row) {
-  console.log("lighting up");
-  var nbs = []
-  for (let i = 0; i < 12; i++) {
-    nbs.push(getNeighborCoords(column, row, i));
-  }
-  for (var i = 0; i < nbs.length; i++) {
-    let xy = gridView.getXY(nbs[i][0], nbs[i][1]);
-    drawHexagon(xy[0], xy[1], RADIUS, 200);
-    text(i, xy[0], xy[1]);
-  }
 }
 
 function harmoicTableMidiLayout() {
@@ -290,3 +273,18 @@ function harmoicTableMidiLayout() {
   }
   return grid;
 }
+
+// for debug incorrect neighbor mapping
+function lightUpTheNeighborhood(column, row) {
+  console.log("lighting up");
+  var nbs = []
+  for (let i = 0; i < 12; i++) {
+    nbs.push(getNeighborCoords(column, row, i));
+  }
+  for (var i = 0; i < nbs.length; i++) {
+    let xy = gridView.getXY(nbs[i][0], nbs[i][1]);
+    drawHexagon(xy[0], xy[1], RADIUS, 200);
+    text(i, xy[0], xy[1]);
+  }
+}
+
