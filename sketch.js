@@ -1,23 +1,24 @@
 'use strict';
 
+//options (TODO make at least some of these dynamically generated based on window size)
 const WIDTH = 1920;
 const HEIGHT = 1080;
 const RADIUS = 70;
 const MUSIC_GRID = harmoicTableMidiLayout();
+const TEMPO = 500;
 
+// representation
 var grid;
 var gridView;
-var isPaused = true;
-
 var ruleGrid;
 var ruleGridView;
+
+// application ui state
+var isPaused = true;
 var isRuleMaker = false;
+var loaded = false;
 
 var stepTimer;
-var tempo = 500;
-
-var polysynth;
-
 
 var font,
   fontsize = 40
@@ -29,7 +30,6 @@ function preload() {
 
   grid = new HexGrid(14, 8);
   gridView = new HexGridView(grid, WIDTH / 2, HEIGHT / 2, RADIUS);
-  polysynth = new p5.PolySynth(p5.MonoSynth, 16);
 }
 
 // TODO add a gui menu from which user can interact
@@ -41,10 +41,19 @@ function setup() {
     createCanvas(WIDTH,HEIGHT);
     
 
+
     // Set text characteristics
     textFont(font);
     textSize(fontsize);
     textAlign(CENTER, CENTER);
+
+    MIDI.loadPlugin({
+      soundfontUrl: "./soundfont/",
+      instrument: "acoustic_grand_piano", // or multiple instruments
+      onsuccess: function() {
+        loaded = true;
+        }
+    });
 }
 
 function draw() {
@@ -59,12 +68,7 @@ function draw() {
       text("Paused", WIDTH / 2, HEIGHT / 2);
       noStroke();
     }
-  } else {
-    // displayHexGrid(grid, RADIUS);  
   }
-
-  // lightUpTheNeighborhood(3, 3);
-  // lightUpTheNeighborhood(8, 2);
 }
 
 function drawHexagon(x, y, radius, color, display_text) {
@@ -80,7 +84,8 @@ function drawHexagon(x, y, radius, color, display_text) {
   }
   endShape(CLOSE);
   noFill();
-  // showing circles for (debug)?
+
+  // Can use composition of these circles to better map hexagon clicking
   // strokeWeight(1);
   // ellipse(x,y,radius * 2);
   // ellipse(x,y,(sqrt(3) / 2) * radius * 2);
@@ -160,7 +165,7 @@ function pause() {
 
 function unpause() {
   isPaused = false;
-  stepTimer = window.setInterval(timerGo, tempo);
+  stepTimer = window.setInterval(timerGo, TEMPO);
 }
 
 function timerGo() {
@@ -211,7 +216,7 @@ function drawRuleMakerGui() {
   text("New Transition Rule", WIDTH / 2, HEIGHT / 16);
 
   // nice little arrow showing transition direction. Uses lots of magic numbers so with size change this part will need adjustment
-  // TODO move arrow up a little bit
+  // TODO create arrow function, move arrow up a little bit
   stroke(100);
   strokeWeight(8);
   line(WIDTH * 19/32, HEIGHT / 2, WIDTH * 23/32, HEIGHT / 2);
@@ -233,18 +238,24 @@ function drawOverlay() {
 
 // TODO find a way to play midi notes that doesnt sound like trash
 function playNote(column, row) {
-  polysynth.play(MUSIC_GRID[column][row], 1, 0, .2);
+  MIDI.setVolume(0, 127);
+  MIDI.noteOn(0,MUSIC_GRID[column][row], 70, 0,);
+  MIDI.noteOff(0,MUSIC_GRID[column][row], 0.2);
 }
 
 // TODO fix this method so that chords can be played
 function playNotes() {
+  let notes = [];
   for (let column = 0; column < grid.columns; column++) {
     for (let row = 0; row < grid.rows; row++) {
       if (grid.getState(column, row) == 1) {
-        playNote(column, row);
+        notes.push(MUSIC_GRID[column][row]);
       }
     }
   }
+  MIDI.setVolume(0, 127);
+  MIDI.chordOn(0, notes, 70, 0);
+  MIDI.chordOff(0, notes, 0.2);
 }
 
 // to debug incorrect neighbor mapping

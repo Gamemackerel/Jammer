@@ -3,7 +3,7 @@ const OUTOFBOUNDS = -1;
 function HexGrid(columns, rows) { //object definition
   this.gridModel = [];
   this.rules = {};
-  this.infinityMode = false;
+  this.infinityMode = true;
 
   this.columns = columns;
   this.rows = rows;
@@ -23,7 +23,11 @@ function HexGrid(columns, rows) { //object definition
 
   this.getNeighborState = function(column, row, neighborIndex) {
     let coords = getNeighborCoords(column, row, neighborIndex);
-    return (this.getState(coords[0], coords[1]));
+    if (this.infinityMode) {
+      return (this.getStateInf(coords[0], coords[1]));
+    } else {
+      return (this.getState(coords[0], coords[1]));
+    }
   }
 
   this.getNeighborhood = function(column, row) {
@@ -35,12 +39,22 @@ function HexGrid(columns, rows) { //object definition
     return result;
   }
 
+  this.getStateInf = function(column, row){
+    if (column < 0) {
+      column += columns;
+    }
+    if (row < 0) {
+      row += rows;
+    }
+    // TODO fix this. it is not compatible with many grid shapes
+    if(this.gridModel[column % columns][row % rows] == OUTOFBOUNDS) {
+      row = 0
+    }
+    return this.gridModel[column % columns][row % rows];
+  }
+
   this.getState = function(column, row){
-    //TODO FIX INFINITY MODE
-    if (this.infinityMode) {
-      return this.gridModel[((column % columns) + columns) % columns][((row % rows) + rows) % rows];
-    } else 
-    if (!this.isInBounds(column, row)) {
+    if (!this.isInBounds(column, row) || this.gridModel[column][row] == OUTOFBOUNDS) {
       return OUTOFBOUNDS;
     } else {
       return this.gridModel[column][row];
@@ -48,9 +62,12 @@ function HexGrid(columns, rows) { //object definition
   }
 
   this.setState = function(column, row, newState) {
-    if (this.infinityMode && this.getState(column, row) != OUTOFBOUNDS) {
-      this.gridModel[((column % columns) + columns) % columns][((row % rows) + rows) % rows] = newState;
-    } else if (this.getState(column, row) != OUTOFBOUNDS) {
+    // if (this.infinityMode && this.isInBounds(column, row) && this.getState(column, row) != OUTOFBOUNDS) {
+    //   // 
+    //   // 
+    //   this.gridModel[((column % columns) + columns) % columns][((row % rows) + rows) % rows] = newState;
+    // } else 
+    if (this.getState(column, row) != OUTOFBOUNDS) {
       this.gridModel[column][row] = newState;
     } 
   }
