@@ -1,6 +1,6 @@
 const OUTOFBOUNDS = -1;
 const SKIP = -2;
-INFINITE_BOARD = false;
+const INFINITE_BOARD = false;
 
 function HexGrid(columns, rows) { //object definition
   this.gridModel = [];
@@ -44,13 +44,12 @@ function HexGrid(columns, rows) { //object definition
   // state getter needs to respectively rightshift 1 and leftshift 1 (or vice versa)
   // in addition to wrapping around, which it already does.
   this.getStateInf = function(column, row){
-    if (column < 0) {
-      column += this.columns;
-    }
     if (row < 0) {
-      row += this.rows(column);
+      column -= 1;
+    } else if (row > this.rows(column)) {
+      column += 1;
     }
-    return this.getState(column % this.columns,row % this.rows(column));
+    return this.getState(((column % this.columns) + this.columns) % this.columns, ((row % this.rows(column)) + this.rows(column)) % this.rows(column));
   }
 
   this.getState = function(column, row){

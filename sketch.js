@@ -67,6 +67,8 @@ function draw() {
       noStroke();
     }
   }
+  // lightUpTheNeighborhood(0,0);
+  // lightUpTheNeighborhood(4,8);
 }
 
 function drawHexagon(x, y, radius, color, display_text) {
@@ -95,12 +97,10 @@ function drawHexagon(x, y, radius, color, display_text) {
 }
 
 function mousePressed() {
-  if (isPaused) {
-    if (isRuleMaker) {
-      ruleMakerMouseEvent();
-    } else {
-      seedMakerMouseEvent();  
-    }
+  if (isRuleMaker) {
+    ruleMakerMouseEvent();
+  } else {
+    seedMakerMouseEvent();  
   }
   return false;
 }
@@ -276,15 +276,30 @@ function harmoicTableMidiLayout() {
 
 // for debug incorrect neighbor mapping
 function lightUpTheNeighborhood(column, row) {
-  console.log("lighting up");
+  // console.log("lighting up");
   var nbs = []
   for (let i = 0; i < 12; i++) {
     nbs.push(getNeighborCoords(column, row, i));
   }
+  
   for (var i = 0; i < nbs.length; i++) {
-    let xy = gridView.getXY(nbs[i][0], nbs[i][1]);
+    let column = nbs[i][0]
+    let row = nbs[i][1]
+    if (row < 0) {
+      column -= 1;
+      row += grid.rows(column)
+    } else if (row > grid.rows(column)) {
+      row -= 2 * (column % 2);
+      column += 1;
+    }
+
+    column = column % grid.columns
+    row = row % grid.rows(column)
+    
+    let xy = gridView.getXY(column, row);
     drawHexagon(xy[0], xy[1], RADIUS, 200);
     text(i, xy[0], xy[1]);
+    // console.log()
   }
 }
 
