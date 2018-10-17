@@ -4,4 +4,4 @@ This webtoy will generate listenable music according to the evolution of a cellu
 
 Jammer is currently unfinished, but you can try out a stable version with most of the features [here](http://students.washington.edu/abemill/Jammer/).
 
-This project is the next iteration of my previous CA webtoy and first real programming project: [MusicBox](https://github.com/Gamemackerel/Musicbox).
+This project is the next iteration of my previous musical CA webtoy: [MusicBox](https://github.com/Gamemackerel/Musicbox).
