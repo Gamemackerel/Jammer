@@ -10,7 +10,7 @@ const HEIGHT = window.innerHeight;
 const RADIUS = 70;
 const TEMPO = 2; //bps
 const FONTSIZE = 40
-const FONTSIZE_SMALL = 20
+const FONTSIZE_SMALL = 25
 
 // representation
 var grid;
@@ -60,8 +60,10 @@ function setup() {
 
 function draw() {
   clear();
-  stroke(100);
+
   if (!isRuleMaker) {
+    // display header unless rulemaking mode is active
+    stroke(100);
     fill(255);
     strokeWeight(5);
     textSize(FONTSIZE * 3)
@@ -78,7 +80,7 @@ function draw() {
       textSize(FONTSIZE)
       text("Paused", WIDTH / 2, HEIGHT / 2);
       textSize(FONTSIZE_SMALL)
-      text("Click to toggle tile states     -     Press R to define transition rules", WIDTH / 2, HEIGHT - HEIGHT / 16);
+      text("Click to toggle tile states     -     Press R to define transition rules     -     Press Space to pause/unpause", WIDTH / 2, HEIGHT - HEIGHT / 16);
       noStroke();
     }
   }
@@ -182,7 +184,7 @@ function timerUp() {
 function startRuleGui() {
   // Generate state for this new rule definition grid
   ruleGrid = new HexGrid(10,5);
-  ruleGridView = new HexGridView(ruleGrid, WIDTH / 2, (HEIGHT / 2), RADIUS * 6/5);
+  ruleGridView = new HexGridView(ruleGrid, WIDTH / 2, (HEIGHT / 2), RADIUS * 3/2);
 
   // Trims grid down to a single neighborhood and a next state cell
   shapeRuleGrid(ruleGrid);
@@ -231,7 +233,7 @@ function drawRuleMakerGui() {
   text("New Transition Rule", WIDTH / 2, HEIGHT / 16);
 
   textSize(FONTSIZE_SMALL)
-  text("The hex on the right is the desired transition state and the complex on the left is the pattern which incites the transition", WIDTH / 2, HEIGHT / 16 + 2 * FONTSIZE);
+  text("The hex on the right is the desired transition state and the complex on the left is the pattern to incite transition", WIDTH / 2, HEIGHT / 16 + 2 * FONTSIZE);
   text("Click to toggle tile states     -     Press Enter to save a new transition rule     -     Press Esc to exit the rule maker", WIDTH / 2, HEIGHT - HEIGHT / 16);
 
   // nice little arrow showing transition direction. 

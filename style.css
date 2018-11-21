@@ -6,9 +6,9 @@ body {
   margin: 0;
   display: flex;
 
-  /* This centers our sketch horizontally. */
+  /* This centers sketch horizontally. */
   justify-content: center;
 
-  /* This centers our sketch vertically. */
+  /* This centers sketch vertically. */
   align-items: center;
 }
