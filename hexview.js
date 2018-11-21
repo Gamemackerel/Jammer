@@ -19,7 +19,6 @@ function HexGridView(hexGrid, positionX, positionY, radius) { //object definitio
       }
     }
   }
-
   
   this.getXY = function(column, row) {
     let x = (column * radius * 3/2) + radius;
@@ -42,6 +41,27 @@ function HexGridView(hexGrid, positionX, positionY, radius) { //object definitio
     let row = Math.round((y - this.innerRadius) / (this.innerRadius * 2))
     let result = [column, row];
     return result;
+  }
+}
+
+// Draws a hexagon with the given position, radius, color, and label
+function drawHexagon(x, y, radius, color, display_text) {
+  fill(color);
+  stroke(50)
+  strokeWeight(4);
+  let angle = TWO_PI / 6;
+  beginShape();
+  for (let a = 0; a < TWO_PI; a += angle) {
+    let sx = x + cos(a) * radius;
+    let sy = y + sin(a) * radius;
+    vertex(sx, sy);
+  }
+  endShape(CLOSE);
+  noFill();
+
+  if (!(typeof display_text === "undefined")) {
+    strokeWeight(4);
+    text(display_text, x, y);
   }
 }
 

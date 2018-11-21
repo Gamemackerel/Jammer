@@ -11,7 +11,6 @@ function HexGrid(columns, rows) { //object definition
     return rows - (!(column % 2) ? 1 : 0);
   }
 
-
   for (let i = 0; i < this.columns; i++) {
     this.gridModel[i] = [];
     for (let j = 0; j < this.rows(i); j++) {

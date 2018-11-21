@@ -21,13 +21,12 @@ var notes;
 var stepTimer;
 var font;
 
-// state of application ui
+// state of application
 var isPaused = true;
 var isRuleMaker = false;
 var isloaded = false;
 
-
-
+// load fonts and plugins before setup
 function preload() {
   // Ensure the .ttf or .otf font stored in the assets directory
   // is loaded before setup() and draw() are called
@@ -43,6 +42,7 @@ function preload() {
   });
 }
 
+// Initialize canvas and application state
 function setup() {
   // Create canvas and main grid
   createCanvas(WIDTH,HEIGHT);
@@ -61,78 +61,22 @@ function setup() {
 function draw() {
   clear();
 
-  if (!isRuleMaker) {
-    // display header unless rulemaking mode is active
-    stroke(100);
-    fill(255);
-    strokeWeight(5);
-    textSize(FONTSIZE * 3)
-    text("JAMMER", WIDTH / 2, HEIGHT / 16);
-  }
+  // Display the current state of the hex grid
   gridView.display();
+
+  // Show different UI elements depending on the 
+  // state of the application
   if (isPaused) {
     if (isRuleMaker) {
-      drawRuleMakerGui(); 
+      drawRuleMakerOverlay();
+      ruleGridView.display(); 
     } else {
-      stroke(100);
-      fill(100);
-      strokeWeight(1);
-      textSize(FONTSIZE)
-      text("Paused", WIDTH / 2, HEIGHT / 2);
-      textSize(FONTSIZE_SMALL)
-      text("Click to toggle tile states     -     Press R to define transition rules     -     Press Space to pause/unpause", WIDTH / 2, HEIGHT - HEIGHT / 16);
-      noStroke();
+      drawPauseOverlay();
+      drawHeader()
     }
-  }
-}
-
-function drawHexagon(x, y, radius, color, display_text) {
-  fill(color);
-  stroke(50)
-  strokeWeight(4);
-  let angle = TWO_PI / 6;
-  beginShape();
-  for (let a = 0; a < TWO_PI; a += angle) {
-    let sx = x + cos(a) * radius;
-    let sy = y + sin(a) * radius;
-    vertex(sx, sy);
-  }
-  endShape(CLOSE);
-  noFill();
-
-  if (!(typeof display_text === "undefined")) {
-    strokeWeight(4);
-    text(display_text, x, y);
-  }
-}
-
-function mousePressed() {
-  if (isRuleMaker) {
-    ruleMakerMouseEvent();
   } else {
-    seedMakerMouseEvent();  
+    drawHeader()
   }
-  return false;
-}
-
-function seedMakerMouseEvent() {
-  let gridIndex = gridView.getCR(mouseX, mouseY);
-    if (grid.isInBounds(gridIndex[0], gridIndex[1])) {
-      let newState = grid.getState(gridIndex[0], gridIndex[1]) ? 0 : 1;
-      grid.setState(gridIndex[0], gridIndex[1], newState);
-    }
-
-    if (grid.getState(gridIndex[0], gridIndex[1]) == 1) {
-      notes.playNote(gridIndex[0], gridIndex[1]);
-    }
-}
-
-function ruleMakerMouseEvent() {
-  let gridIndex = ruleGridView.getCR(mouseX, mouseY);
-    if (ruleGrid.isInBounds(gridIndex[0], gridIndex[1])) {
-      let newState = ruleGrid.getState(gridIndex[0], gridIndex[1]) ? 0 : 1;
-      ruleGrid.setState(gridIndex[0], gridIndex[1], newState);
-    }
 }
 
 function keyPressed() {
@@ -184,7 +128,7 @@ function timerUp() {
 function startRuleGui() {
   // Generate state for this new rule definition grid
   ruleGrid = new HexGrid(10,5);
-  ruleGridView = new HexGridView(ruleGrid, WIDTH / 2, (HEIGHT / 2), RADIUS * 3/2);
+  ruleGridView = new HexGridView(ruleGrid, WIDTH / 2, (HEIGHT / 2), RADIUS * 6/5);
 
   // Trims grid down to a single neighborhood and a next state cell
   shapeRuleGrid(ruleGrid);
@@ -199,6 +143,37 @@ function saveRule() {
   grid.newRule(neighborhood, nextState);
 }
 
+function mousePressed() {
+  if (isRuleMaker) {
+    ruleMakerMouseEvent();
+  } else {
+    seedMakerMouseEvent();  
+  }
+  return false;
+}
+
+// When user clicks on tile, toggle its state and play its associated note
+function seedMakerMouseEvent() {
+  let gridIndex = gridView.getCR(mouseX, mouseY);
+    if (grid.isInBounds(gridIndex[0], gridIndex[1])) {
+      let newState = grid.getState(gridIndex[0], gridIndex[1]) ? 0 : 1;
+      grid.setState(gridIndex[0], gridIndex[1], newState);
+    }
+
+    if (grid.getState(gridIndex[0], gridIndex[1]) == 1) {
+      notes.playNote(gridIndex[0], gridIndex[1]);
+    }
+}
+
+// When user clicks on tile in rule definer, toggle tile state
+function ruleMakerMouseEvent() {
+  let gridIndex = ruleGridView.getCR(mouseX, mouseY);
+    if (ruleGrid.isInBounds(gridIndex[0], gridIndex[1])) {
+      let newState = ruleGrid.getState(gridIndex[0], gridIndex[1]) ? 0 : 1;
+      ruleGrid.setState(gridIndex[0], gridIndex[1], newState);
+    }
+}
+
 function shapeRuleGrid(ruleGrid) {
   let center_of_attention = [3, 2];
   let keepMask = {};
@@ -208,7 +183,6 @@ function shapeRuleGrid(ruleGrid) {
 
   keepMask[center_of_attention] = true;
   keepMask[[9,2]] = true;
-
   
   let trimMask = [];
   for (let i = 0; i < 10; i++) {
@@ -221,30 +195,49 @@ function shapeRuleGrid(ruleGrid) {
   ruleGrid.massSetState(trimMask);
 }
 
-function drawRuleMakerGui() {
-  drawOverlay();
-  ruleGridView.display();
-  fill(65);
+// Grey out the current hex grid and overlay some instructions for
+// how to use the rule maker gui
+function drawRuleMakerOverlay() {
+  // grey background
+  fill(200, 200, 200, 220);
+  rect(0, 0, WIDTH, HEIGHT);
 
+  // title and instructions of rule maker gui
+  fill(65);
   stroke(100)
   strokeWeight(1)
-  // title of rule maker gui
   textSize(FONTSIZE)
   text("New Transition Rule", WIDTH / 2, HEIGHT / 16);
-
   textSize(FONTSIZE_SMALL)
-  text("The hex on the right is the desired transition state and the complex on the left is the pattern to incite transition", WIDTH / 2, HEIGHT / 16 + 2 * FONTSIZE);
+  text("The hex on the right is the desired transition state and the complex on the left is the pattern to incite transition", WIDTH / 2, HEIGHT / 16 + 60);
   text("Click to toggle tile states     -     Press Enter to save a new transition rule     -     Press Esc to exit the rule maker", WIDTH / 2, HEIGHT - HEIGHT / 16);
 
-  // nice little arrow showing transition direction. 
+  // nice little arrow showing transition direction between 
+  // the current neighborhood and the next state
   drawArrow(WIDTH * 19/32, HEIGHT / 2 + RADIUS / 2, WIDTH * 21/32, HEIGHT / 2 + RADIUS / 2);
 }
 
-function drawOverlay() {
-  fill(200, 200, 200, 220);
-  rect(0, 0, WIDTH, HEIGHT);
+// Draw the Jammer Logo at the top of page
+function drawHeader() {
+  stroke(0);
+  fill(255);
+  strokeWeight(5);
+  textSize(FONTSIZE * 3)
+  text("JAMMER", WIDTH / 2, HEIGHT / 16);
 }
 
+// Draw the "paused" notifcation and control instructions
+function drawPauseOverlay() {
+  stroke(100);
+  fill(100);
+  strokeWeight(1);
+  textSize(FONTSIZE)
+  text("Paused", WIDTH / 2, HEIGHT / 2);
+  textSize(FONTSIZE_SMALL)
+  text("Click to toggle tile states     -     Press R to define transition rules     -     Press Space to pause/unpause", WIDTH / 2, HEIGHT - HEIGHT / 16);
+}
+
+// Draw an arrow starting from start_x,start_y and ending at end_x,end_y
 function drawArrow(start_x, start_y, end_x, end_y) {
   stroke(100);
   strokeWeight(8);
@@ -253,7 +246,8 @@ function drawArrow(start_x, start_y, end_x, end_y) {
   noStroke();
 }
 
-// for debug incorrect neighbor mapping
+// Given a rc index, highlight all of its neighbors
+// for debugging incorrect neighbor mapping
 function lightUpTheNeighborhood(column, row) {
   // console.log("lighting up");
   var nbs = []
@@ -278,7 +272,6 @@ function lightUpTheNeighborhood(column, row) {
     let xy = gridView.getXY(column, row);
     drawHexagon(xy[0], xy[1], RADIUS, 200);
     text(i, xy[0], xy[1]);
-    // console.log()
   }
 }
 
