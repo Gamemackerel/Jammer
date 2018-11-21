@@ -5,53 +5,57 @@
 // mode can be toggled, and midi data can be downloaded
 
 //options (TODO make at least some of these dynamically generated based on window size)
-const WIDTH = 1920;
-const HEIGHT = 1080;
+const WIDTH = window.innerWidth;
+const HEIGHT = window.innerHeight;
 const RADIUS = 70;
-const MUSIC_GRID = harmoicTableMidiLayout();
-const TEMPO = 500;
+const TEMPO = 2; //bps
+const FONTSIZE = 40
+const FONTSIZE_SMALL = 20
 
 // representation
 var grid;
 var gridView;
 var ruleGrid;
 var ruleGridView;
+var notes;
+var stepTimer;
+var font;
 
-// application ui state
+// state of application ui
 var isPaused = true;
 var isRuleMaker = false;
-var loaded = false;
+var isloaded = false;
 
-var stepTimer;
 
-var font,
-  fontsize = 40
 
 function preload() {
   // Ensure the .ttf or .otf font stored in the assets directory
   // is loaded before setup() and draw() are called
   font = loadFont('assets/ABeeZee/ABeeZee-Regular.otf');
 
-  grid = new HexGrid(14, 8);
-  gridView = new HexGridView(grid, WIDTH / 2, HEIGHT / 2, RADIUS);
+  // load the midi soundfont
+  MIDI.loadPlugin({
+    soundfontUrl: "./soundfont/",
+    instrument: "acoustic_grand_piano", // or multiple instruments
+    onsuccess: function() {
+      isloaded = true;
+      }
+  });
 }
 
 function setup() {
-    // Create canvas and main grid
-    createCanvas(WIDTH,HEIGHT);
-    
-    // Set text characteristics
-    textFont(font);
-    textSize(fontsize);
-    textAlign(CENTER, CENTER);
+  // Create canvas and main grid
+  createCanvas(WIDTH,HEIGHT);
+  
+  // Set text characteristics
+  textFont(font);
+  textSize(FONTSIZE);
+  textAlign(CENTER, CENTER);
 
-    MIDI.loadPlugin({
-      soundfontUrl: "./soundfont/",
-      instrument: "acoustic_grand_piano", // or multiple instruments
-      onsuccess: function() {
-        loaded = true;
-        }
-    });
+  // initialize Jammer state
+  grid = new HexGrid(14, 8);
+  gridView = new HexGridView(grid, WIDTH / 2, HEIGHT / 2, RADIUS);
+  notes = new NoteMap(95)
 }
 
 function draw() {
@@ -62,13 +66,15 @@ function draw() {
       drawRuleMakerGui(); 
     } else {
       stroke(100);
+      fill(100);
       strokeWeight(2);
+      textSize(FONTSIZE)
       text("Paused", WIDTH / 2, HEIGHT / 2);
+      textSize(FONTSIZE_SMALL)
+      text("Press R to define transition rules", WIDTH / 2, HEIGHT - HEIGHT / 16);
       noStroke();
     }
   }
-  // lightUpTheNeighborhood(0,0);
-  // lightUpTheNeighborhood(4,8);
 }
 
 function drawHexagon(x, y, radius, color, display_text) {
@@ -84,11 +90,6 @@ function drawHexagon(x, y, radius, color, display_text) {
   }
   endShape(CLOSE);
   noFill();
-
-  // Could use composition of these circles to better map hexagon clicking
-  // strokeWeight(1);
-  // ellipse(x,y,radius * 2);
-  // ellipse(x,y,(sqrt(3) / 2) * radius * 2);
 
   if (!(typeof display_text === "undefined")) {
     strokeWeight(4);
@@ -113,7 +114,7 @@ function seedMakerMouseEvent() {
     }
 
     if (grid.getState(gridIndex[0], gridIndex[1]) == 1) {
-      playNote(gridIndex[0], gridIndex[1]);
+      notes.playNote(gridIndex[0], gridIndex[1]);
     }
 }
 
@@ -128,30 +129,30 @@ function ruleMakerMouseEvent() {
 function keyPressed() {
   switch(keyCode) {
     case 32: // space
-        if (!isRuleMaker) {
-          if (isPaused) {
-            unpause();
-          } else {
-            pause();
-          }
+      if (!isRuleMaker) {
+        if (isPaused) {
+          unpause();
+        } else {
+          pause();
         }
+      }
         break;
     case 82: // r
-        if (isPaused) {
-          startRuleGui();
-        }
-        break;
+      if (isPaused) {
+        startRuleGui();
+      }
+      break;
     case 27: //esc
-        if (isRuleMaker) {
-          isRuleMaker = false;
-        }
-        break;
+      if (isRuleMaker) {
+        isRuleMaker = false;
+      }
+      break;
     case 13: //enter
-        if (isRuleMaker) {
-          saveRule();
-          isRuleMaker = false;
-        }
-        break;
+      if (isRuleMaker) {
+        saveRule();
+        startRuleGui();
+      }
+      break;
   }
   return 0;
 }
@@ -163,24 +164,30 @@ function pause() {
 
 function unpause() {
   isPaused = false;
-  stepTimer = window.setInterval(timerGo, TEMPO);
+  stepTimer = window.setInterval(timerUp, 1000 / TEMPO);
 }
 
-function timerGo() {
+function timerUp() {
   grid.step();
-  playNotes();
+  notes.playNotes(grid);
 }
 
-//TODO move rulemaker methods into a seperate oop file
 function startRuleGui() {
-  isRuleMaker = true;
+  // Generate state for this new rule definition grid
   ruleGrid = new HexGrid(10,5);
-
   ruleGridView = new HexGridView(ruleGrid, WIDTH / 2, (HEIGHT / 2), RADIUS * 6/5);
 
-  // Trims grid down to a single neighborhood
-  // and the next generation state
+  // Trims grid down to a single neighborhood and a next state cell
   shapeRuleGrid(ruleGrid);
+
+  // Causes draw to start rule definition mode
+  isRuleMaker = true;
+}
+
+function saveRule() {
+  let neighborhood = ruleGrid.getNeighborhood(3, 2);
+  let nextState = ruleGrid.getState(9, 2);
+  grid.newRule(neighborhood, nextState);
 }
 
 function shapeRuleGrid(ruleGrid) {
@@ -210,23 +217,18 @@ function drawRuleMakerGui() {
   ruleGridView.display();
   fill(65);
 
+  stroke(100)
+  strokeWeight(2)
   // title of rule maker gui
+  textSize(FONTSIZE)
   text("New Transition Rule", WIDTH / 2, HEIGHT / 16);
 
-  // nice little arrow showing transition direction. Uses lots of magic numbers so with size change this part will need adjustment
-  // TODO create arrow function that works like line
-  // TODO fix arrow location on rule def
-  stroke(100);
-  strokeWeight(8);
-  line(WIDTH * 19/32, HEIGHT / 2, WIDTH * 23/32, HEIGHT / 2);
-  triangle(WIDTH * 23/32, HEIGHT / 2, WIDTH * 23/32 - 4, HEIGHT / 2 + 4, WIDTH * 23/32 - 4, HEIGHT / 2 - 4)
-  noStroke();
-}
+  textSize(FONTSIZE_SMALL)
+  text("The hex on the right is the desired transition state and the complex on the left is the pattern which incites the transition", WIDTH / 2, HEIGHT / 16 + 2 * FONTSIZE);
+  text("Press ENTER to save a new transition rule     -     Press ESC to exit the rule maker", WIDTH / 2, HEIGHT - HEIGHT / 16);
 
-function saveRule() {
-  let neighborhood = ruleGrid.getNeighborhood(3, 2);
-  let nextState = ruleGrid.getState(9, 2);
-  grid.newRule(neighborhood, nextState);
+  // nice little arrow showing transition direction. 
+  drawArrow(WIDTH * 19/32, HEIGHT / 2 + RADIUS / 2, WIDTH * 21/32, HEIGHT / 2 + RADIUS / 2);
 }
 
 function drawOverlay() {
@@ -234,44 +236,12 @@ function drawOverlay() {
   rect(0, 0, WIDTH, HEIGHT);
 }
 
-//TODO move sound "view" into either hexview class or seperate oop file 
-function playNote(column, row) {
-  MIDI.setVolume(0, 127);
-  MIDI.noteOn(0,MUSIC_GRID[column][row], 70, 0,);
-  MIDI.noteOff(0,MUSIC_GRID[column][row], 0.2);
-}
-
-function playNotes() {
-  let notes = [];
-  for (let column = 0; column < grid.columns; column++) {
-    for (let row = 0; row < grid.rows(column); row++) {
-      if (grid.getState(column, row) == 1) {
-        notes.push(MUSIC_GRID[column][row]);
-      }
-    }
-  }
-  MIDI.setVolume(0, 127);
-  MIDI.chordOn(0, notes, 70, 0);
-  MIDI.chordOff(0, notes, 0.2);
-}
-
-function harmoicTableMidiLayout() {
-  let first_column_first_row_midi = 115;
-  let second_column_first_row_midi = 119;
-  let grid = [];
-  for (let column = 0; column < 14; column++) {
-    grid[column] = [];
-    let midi_column_start;
-    if (!(column % 2)) {
-      midi_column_start = first_column_first_row_midi - Math.floor(column/2);
-    } else {
-      midi_column_start = second_column_first_row_midi - Math.floor(column/2);
-    }
-    for (let row = 0; row < 8; row++) {
-      grid[column][row] = midi_column_start - 7 * row;
-    }
-  }
-  return grid;
+function drawArrow(start_x, start_y, end_x, end_y) {
+  stroke(100);
+  strokeWeight(8);
+  line(start_x, start_y, end_x, end_y);
+  triangle(end_x, end_y, end_x - 4, end_y + 4, end_x - 4, end_y - 4)
+  noStroke();
 }
 
 // for debug incorrect neighbor mapping
