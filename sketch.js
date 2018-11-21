@@ -17,6 +17,7 @@ var grid;
 var gridView;
 var ruleGrid;
 var ruleGridView;
+var defaultToast;
 var notes;
 var stepTimer;
 var font;
@@ -25,6 +26,7 @@ var font;
 var isPaused = true;
 var isRuleMaker = false;
 var isloaded = false;
+var isToasting = false;
 
 // load fonts and plugins before setup
 function preload() {
@@ -60,7 +62,6 @@ function setup() {
 
 function draw() {
   clear();
-
   // Display the current state of the hex grid
   gridView.display();
 
@@ -77,6 +78,8 @@ function draw() {
   } else {
     drawHeader()
   }
+
+  toastAdvocate(defaultToast)
 }
 
 function keyPressed() {
@@ -103,6 +106,8 @@ function keyPressed() {
     case 13: //enter
       if (isRuleMaker) {
         saveRule();
+        defaultToast = new ToastMessage("Saved", WIDTH / 2, HEIGHT / 2, 300);
+        defaultToast.start();
         startRuleGui();
       }
       break;
@@ -200,6 +205,7 @@ function shapeRuleGrid(ruleGrid) {
 function drawRuleMakerOverlay() {
   // grey background
   fill(200, 200, 200, 220);
+  noStroke();
   rect(0, 0, WIDTH, HEIGHT);
 
   // title and instructions of rule maker gui
