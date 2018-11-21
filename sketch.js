@@ -60,6 +60,13 @@ function setup() {
 
 function draw() {
   clear();
+  stroke(100);
+  if (!isRuleMaker) {
+    fill(255);
+    strokeWeight(5);
+    textSize(FONTSIZE * 3)
+    text("JAMMER", WIDTH / 2, HEIGHT / 16);
+  }
   gridView.display();
   if (isPaused) {
     if (isRuleMaker) {
@@ -67,11 +74,11 @@ function draw() {
     } else {
       stroke(100);
       fill(100);
-      strokeWeight(2);
+      strokeWeight(1);
       textSize(FONTSIZE)
       text("Paused", WIDTH / 2, HEIGHT / 2);
       textSize(FONTSIZE_SMALL)
-      text("Press R to define transition rules", WIDTH / 2, HEIGHT - HEIGHT / 16);
+      text("Click to toggle tile states     -     Press R to define transition rules", WIDTH / 2, HEIGHT - HEIGHT / 16);
       noStroke();
     }
   }
@@ -218,14 +225,14 @@ function drawRuleMakerGui() {
   fill(65);
 
   stroke(100)
-  strokeWeight(2)
+  strokeWeight(1)
   // title of rule maker gui
   textSize(FONTSIZE)
   text("New Transition Rule", WIDTH / 2, HEIGHT / 16);
 
   textSize(FONTSIZE_SMALL)
   text("The hex on the right is the desired transition state and the complex on the left is the pattern which incites the transition", WIDTH / 2, HEIGHT / 16 + 2 * FONTSIZE);
-  text("Press ENTER to save a new transition rule     -     Press ESC to exit the rule maker", WIDTH / 2, HEIGHT - HEIGHT / 16);
+  text("Click to toggle tile states     -     Press Enter to save a new transition rule     -     Press Esc to exit the rule maker", WIDTH / 2, HEIGHT - HEIGHT / 16);
 
   // nice little arrow showing transition direction. 
   drawArrow(WIDTH * 19/32, HEIGHT / 2 + RADIUS / 2, WIDTH * 21/32, HEIGHT / 2 + RADIUS / 2);
