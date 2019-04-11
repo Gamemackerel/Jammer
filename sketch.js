@@ -202,6 +202,7 @@ function shapeRuleGrid(ruleGrid) {
 
 // Grey out the current hex grid and overlay some instructions for
 // how to use the rule maker gui
+// TODO display all existing rules in mini version
 function drawRuleMakerOverlay() {
   // grey background
   fill(200, 200, 200, 220);
