@@ -224,6 +224,7 @@ function drawRuleMakerOverlay() {
   drawArrow(WIDTH * 19/32, HEIGHT / 2 + RADIUS / 2, WIDTH * 21/32, HEIGHT / 2 + RADIUS / 2);
 }
 
+// TODO make header clickable and plays one time crazy chord, or randomizes seed
 // Draw the Jammer Logo at the top of page
 function drawHeader() {
   stroke(0);
@@ -247,7 +248,7 @@ function drawPauseOverlay() {
 // Draw an arrow starting from start_x,start_y and ending at end_x,end_y
 function drawArrow(start_x, start_y, end_x, end_y) {
   stroke(100);
-  strokeWeight(8);
+  strokeWeight(4);
   line(start_x, start_y, end_x, end_y);
   triangle(end_x, end_y, end_x - 4, end_y + 4, end_x - 4, end_y - 4)
   noStroke();
