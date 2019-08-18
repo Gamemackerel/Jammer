@@ -48,7 +48,7 @@ function HexGridView(hexGrid, positionX, positionY, radius) { //object definitio
 function drawHexagon(x, y, radius, color, display_text) {
   fill(color);
   stroke(50)
-  strokeWeight(4);
+  strokeWeight(2);
   let angle = TWO_PI / 6;
   beginShape();
   for (let a = 0; a < TWO_PI; a += angle) {
@@ -60,7 +60,7 @@ function drawHexagon(x, y, radius, color, display_text) {
   noFill();
 
   if (!(typeof display_text === "undefined")) {
-    strokeWeight(4);
+    strokeWeight(2);
     text(display_text, x, y);
   }
 }

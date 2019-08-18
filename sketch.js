@@ -7,10 +7,10 @@
 //options (TODO make at least some of these dynamically generated based on window size)
 const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
-const RADIUS = 70;
+const RADIUS = window.innerHeight / 18;
 const TEMPO = 2; //bps
-const FONTSIZE = 40
-const FONTSIZE_SMALL = 25
+const FONTSIZE = window.innerHeight / 30
+const FONTSIZE_SMALL = FONTSIZE / 2
 
 // representation
 var grid;
@@ -32,7 +32,7 @@ var isToasting = false;
 function preload() {
   // Ensure the .ttf or .otf font stored in the assets directory
   // is loaded before setup() and draw() are called
-  font = loadFont('assets/ABeeZee/ABeeZee-Regular.otf');
+  font = loadFont('./assets/ABeeZee/ABeeZee-Regular.otf');
 
   // load the midi soundfont
   MIDI.loadPlugin({
@@ -228,7 +228,7 @@ function drawRuleMakerOverlay() {
 function drawHeader() {
   stroke(0);
   fill(255);
-  strokeWeight(5);
+  strokeWeight(3);
   textSize(FONTSIZE * 3)
   text("JAMMER", WIDTH / 2, HEIGHT / 16);
 }
