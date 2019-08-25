@@ -132,7 +132,7 @@ function drawRuleMakerOverlay() {
 
   // nice little arrow showing transition direction between 
   // the current neighborhood and the next state
-  drawArrow(WIDTH * 19/32, HEIGHT / 2 + RADIUS / 2, WIDTH * 21/32, HEIGHT / 2 + RADIUS / 2);
+  drawArrow(WIDTH * 18/32, HEIGHT / 2 - RADIUS / 2, WIDTH * 21/32, HEIGHT / 2 - RADIUS / 2);
 }
 
 // TODO make header clickable and plays one time crazy chord, or randomizes seed
