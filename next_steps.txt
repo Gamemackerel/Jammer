@@ -1,11 +1,14 @@
 Next Steps:
 
-Overarching goal: 
-	Add Gui with customizable options
+Overarching goals: 
+	Add Gui with customizable options and minimap of rules
+	Add documentation and instruction blogpost
+	Add multiple states each with its own sound font
+	Add wildcard state which matches all
+	Allow board size to be scalable
 
 Direct next:
 	Slider for tempo modification
 
 Where to look:
 	TEMPO constant - make this variable according to the value of slider
-	
