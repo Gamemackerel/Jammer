@@ -1,33 +1,26 @@
 const OUTOFBOUNDS = -1;
-const SKIP = -2;
-const INFINITE_BOARD = false;
+const INFINITE_BOARD = true;
 
 function HexGrid(columns, rows) { //object definition
   this.gridModel = [];
   this.rules = {};
 
   this.columns = columns;
-  this.rows = function(column) { //odd columns will have bottom row skipped
-    return rows - (!(column % 2) ? 1 : 0);
-  }
+  this.rows = rows;
 
   for (let i = 0; i < this.columns; i++) {
     this.gridModel[i] = [];
-    for (let j = 0; j < this.rows(i); j++) {
+    for (let j = 0; j < this.rows; j++) {
       this.gridModel[i][j] = 0;
     }
   }
 
   this.getNeighborState = function(column, row, neighborIndex) {
-    let coords = getNeighborCoords(column, row, neighborIndex);
-    if (INFINITE_BOARD) {
-      return (this.getStateInf(coords[0], coords[1]));
-    } else {
-      return (this.getState(coords[0], coords[1]));
-    }
+    let coords = this.getNeighborCoordsWithWrap(column, row, neighborIndex);
+    return (this.getState(coords[0], coords[1]));
   }
 
-  this.getNeighborhood = function(column, row) {
+  this.getNeighborhoodStates = function(column, row) {
     let result = []
     for (let i = 0; i < 12; i++) {
       result.push(this.getNeighborState(column, row, i));
@@ -36,19 +29,14 @@ function HexGrid(columns, rows) { //object definition
     return result;
   }
 
-  // GLITCH TODO: fix infinity mode! 
-  // Currently on tall columns the top and bottom cell get mirrored
-  // more complicated strategy needed:
-  // when neighborhood goes off top or bottom, 
-  // state getter needs to respectively rightshift 1 and leftshift 1 (or vice versa)
-  // in addition to wrapping around, which it already does.
-  this.getStateInf = function(column, row){
-    if (row < 0) {
-      column -= 1;
-    } else if (row > this.rows(column)) {
-      column += 1;
-    }
-    return this.getState(((column % this.columns) + this.columns) % this.columns, ((row % this.rows(column)) + this.rows(column)) % this.rows(column));
+  this.wrapAround = function(column, row) {
+    return [((column % this.columns) + this.columns) % this.columns, ((row % this.rows) + this.rows) % this.rows];
+  }
+
+  // Requires that column, row is in bounds of grid
+  this.getNeighborCoordsWithWrap = function(column, row, neighborIndex) {
+    [column, row] = getNeighborCoords(column, row, neighborIndex);
+    return this.wrapAround(column, row);
   }
 
   this.getState = function(column, row){
@@ -73,7 +61,7 @@ function HexGrid(columns, rows) { //object definition
 
   this.isInBounds = function(column, row) {
     return (((column >= 0) && (column < this.columns)) 
-        && ((row >= 0) && (row < this.rows(column))))
+        && ((row >= 0) && (row < this.rows)))
   }
 
   this.newRule = function(neighborhood, nextState) {
@@ -94,8 +82,8 @@ function HexGrid(columns, rows) { //object definition
     let nextGen = []; 
     for (let i = 0; i < this.columns; i++) {
       nextGen[i] = [];
-      for (let j = 0; j < this.rows(i); j++) {
-        nextGen[i][j] = this.getRule(this.getNeighborhood(i, j));
+      for (let j = 0; j < this.rows; j++) {
+        nextGen[i][j] = this.getRule(this.getNeighborhoodStates(i, j));
       }
     }
     this.gridModel = nextGen;

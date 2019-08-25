@@ -3,14 +3,14 @@ const COLORMAP = {0: 255, 1: 0};
 function HexGridView(hexGrid, positionX, positionY, radius) { //object definition
 
   this.innerRadius = (sqrt(3) / 2) * radius;
-  this.naturalOffsetY = -((hexGrid.rows(0)) * this.innerRadius) - .5 * this.innerRadius;
+  this.naturalOffsetY = -((hexGrid.rows) * this.innerRadius) - .5 * this.innerRadius;
   this.naturalOffsetX = -((hexGrid.columns) * radius * 3/4) - .25 * radius;
 
 
   // TODO optimize this method since it gets run every frame
   this.display = function() {
     for (let column = 0; column < hexGrid.columns; column++) {
-      for (let row = 0; row < hexGrid.rows(column); row++) {
+      for (let row = 0; row < hexGrid.rows; row++) {
         if (hexGrid.getState(column, row) != OUTOFBOUNDS) {
           let coords = this.getXY(column, row, radius);
           let color = COLORMAP[hexGrid.getState(column, row)];
@@ -61,6 +61,7 @@ function drawHexagon(x, y, radius, color, display_text) {
 
   if (!(typeof display_text === "undefined")) {
     strokeWeight(2);
+    textSize(FONTSIZE_SMALL)
     text(display_text, x, y);
   }
 }

@@ -73,12 +73,8 @@ function draw() {
       ruleGridView.display(); 
     } else {
       drawPauseOverlay();
-      drawHeader()
     }
-  } else {
-    drawHeader()
   }
-
   toastAdvocate(defaultToast)
 }
 
@@ -143,7 +139,7 @@ function startRuleGui() {
 }
 
 function saveRule() {
-  let neighborhood = ruleGrid.getNeighborhood(3, 2);
+  let neighborhood = ruleGrid.getNeighborhoodStates(3, 2);
   let nextState = ruleGrid.getState(9, 2);
   grid.newRule(neighborhood, nextState);
 }
@@ -260,26 +256,19 @@ function lightUpTheNeighborhood(column, row) {
   // console.log("lighting up");
   var nbs = []
   for (let i = 0; i < 12; i++) {
-    nbs.push(getNeighborCoords(column, row, i));
+    nbs.push(grid.getNeighborCoordsWithWrap(column, row, i));
   }
   
   for (var i = 0; i < nbs.length; i++) {
     let column = nbs[i][0]
     let row = nbs[i][1]
-    if (row < 0) {
-      column -= 1;
-      row += grid.rows(column)
-    } else if (row > grid.rows(column)) {
-      row -= 2 * (column % 2);
-      column += 1;
-    }
 
     column = column % grid.columns
-    row = row % grid.rows(column)
+    row = row % grid.rows
     
     let xy = gridView.getXY(column, row);
-    drawHexagon(xy[0], xy[1], RADIUS, 200);
-    text(i, xy[0], xy[1]);
+    drawHexagon(xy[0], xy[1], RADIUS, 200, i + ' : (' + [row, column] + ')');
+    textSize(FONTSIZE_SMALL)
   }
 }
 

@@ -14,7 +14,7 @@ function NoteMap(max_note) {
   this.playNotes = function(grid) {
     let notes = [];
     for (let column = 0; column < grid.columns; column++) {
-      for (let row = 0; row < grid.rows(column); row++) {
+      for (let row = 0; row < grid.rows; row++) {
         if (grid.getState(column, row) == 1) {
           notes.push(this.note_grid[column][row]);
         }
