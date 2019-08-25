@@ -9,8 +9,8 @@ const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
 const RADIUS = window.innerHeight / 18;
 const TEMPO = 2; //bps
-const FONTSIZE = window.innerHeight / 30
-const FONTSIZE_SMALL = FONTSIZE / 2
+const FONTSIZE = window.innerHeight / 30;
+const FONTSIZE_SMALL = FONTSIZE / 2;
 
 // representation
 var grid;
@@ -150,8 +150,8 @@ function drawPauseOverlay() {
   stroke(100);
   fill(100);
   strokeWeight(1);
-  textSize(FONTSIZE)
+  textSize(FONTSIZE);
   text("Paused", WIDTH / 2, HEIGHT / 2);
-  textSize(FONTSIZE_SMALL)
+  textSize(FONTSIZE_SMALL);
   text("Click to toggle tile states     -     Press R to define transition rules     -     Press Space to pause/unpause", WIDTH / 2, HEIGHT - HEIGHT / 16);
 }

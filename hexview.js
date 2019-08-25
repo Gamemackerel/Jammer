@@ -38,7 +38,7 @@ function HexGridView(hexGrid, positionX, positionY, radius) { //object definitio
     if (!(column % 2)) { //stagger hexagons on odd columns
       y -= this.innerRadius;
     }
-    let row = Math.round((y - this.innerRadius) / (this.innerRadius * 2))
+    let row = Math.round((y - this.innerRadius) / (this.innerRadius * 2));
     let result = [column, row];
     return result;
   }

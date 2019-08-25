@@ -1,7 +1,7 @@
 
 function NoteMap(note_grid) {
 
-  this.note_grid = note_grid
+  this.note_grid = note_grid;
 
   // play a single key on the keyboard using the MUSIC GRID
   this.playNote = function(column, row) {

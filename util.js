@@ -2,21 +2,21 @@
 // for debugging
 function lightUpTheNeighborhood(column, row) {
   // console.log("lighting up");
-  var nbs = []
+  var nbs = [];
   for (let i = 0; i < 12; i++) {
     nbs.push(grid.getNeighborCoordsWithWrap(column, row, i));
   }
   
   for (var i = 0; i < nbs.length; i++) {
-    let column = nbs[i][0]
-    let row = nbs[i][1]
+    let column = nbs[i][0];
+    let row = nbs[i][1];
 
-    column = column % grid.columns
-    row = row % grid.rows
+    column = column % grid.columns;
+    row = row % grid.rows;
     
     let xy = gridView.getXY(column, row);
     drawHexagon(xy[0], xy[1], RADIUS, 200, i + ' : (' + [row, column] + ')');
-    textSize(FONTSIZE_SMALL)
+    textSize(FONTSIZE_SMALL);
   }
 }
 
@@ -46,7 +46,7 @@ function shapeRuleGrid(ruleGrid) {
 // Draws a hexagon with the given position, radius, color, and label
 function drawHexagon(x, y, radius, color, display_text) {
   fill(color);
-  stroke(50)
+  stroke(50);
   strokeWeight(2);
   let angle = TWO_PI / 6;
   beginShape();
@@ -60,7 +60,7 @@ function drawHexagon(x, y, radius, color, display_text) {
 
   if (!(typeof display_text === "undefined")) {
     strokeWeight(2);
-    textSize(FONTSIZE_SMALL)
+    textSize(FONTSIZE_SMALL);
     text(display_text, x, y);
   }
 }
@@ -70,7 +70,7 @@ function drawArrow(start_x, start_y, end_x, end_y) {
   stroke(100);
   strokeWeight(4);
   line(start_x, start_y, end_x, end_y);
-  triangle(end_x, end_y, end_x - 4, end_y + 4, end_x - 4, end_y - 4)
+  triangle(end_x, end_y, end_x - 4, end_y + 4, end_x - 4, end_y - 4);
   noStroke();
 }
 
@@ -101,40 +101,40 @@ function getNeighborCoords(column, row, neighborIndex) {
   let stagger = !(column % 2);
   switch(neighborIndex) {
     case 0:
-      return [column, row - 1]
+      return [column, row - 1];
       break;
     case 1:
-      return [column + 1, stagger + row - 2]
+      return [column + 1, stagger + row - 2];
       break;
     case 2:
-      return [column + 1, stagger + row - 1]      
+      return [column + 1, stagger + row - 1];
       break;
     case 3:
-      return [column + 2, row]
+      return [column + 2, row];
       break;
     case 4:
-      return [column + 1, stagger + row]
+      return [column + 1, stagger + row];
       break;
     case 5:
-      return [column + 1, stagger + row + 1]
+      return [column + 1, stagger + row + 1];
       break;
     case 6:
-      return [column, row + 1]
+      return [column, row + 1];
       break;
     case 7:
-      return [column - 1, stagger + row + 1]
+      return [column - 1, stagger + row + 1];
       break;
     case 8:
-      return [column - 1, stagger + row]
+      return [column - 1, stagger + row];
       break;
     case 9:
-      return [column - 2, row]
+      return [column - 2, row];
       break;
     case 10:
-      return [column - 1, stagger + row - 1]
+      return [column - 1, stagger + row - 1];
       break;
     case 11:
-      return [column - 1, stagger + row - 2]
+      return [column - 1, stagger + row - 2];
       break;
   }
 }

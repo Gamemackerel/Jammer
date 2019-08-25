@@ -1,5 +1,4 @@
 const OUTOFBOUNDS = -1;
-const INFINITE_BOARD = true;
 
 function HexGrid(columns, rows) { //object definition
   this.gridModel = [];
@@ -21,7 +20,7 @@ function HexGrid(columns, rows) { //object definition
   }
 
   this.getNeighborhoodStates = function(column, row) {
-    let result = []
+    let result = [];
     for (let i = 0; i < 12; i++) {
       result.push(this.getNeighborState(column, row, i));
     }
@@ -60,8 +59,8 @@ function HexGrid(columns, rows) { //object definition
   }
 
   this.isInBounds = function(column, row) {
-    return (((column >= 0) && (column < this.columns)) 
-        && ((row >= 0) && (row < this.rows)))
+    return (((column >= 0) && (column < this.columns))
+        && ((row >= 0) && (row < this.rows)));
   }
 
   this.newRule = function(neighborhood, nextState) {
@@ -88,5 +87,4 @@ function HexGrid(columns, rows) { //object definition
     }
     this.gridModel = nextGen;
   }
-
 }
