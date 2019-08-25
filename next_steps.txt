@@ -1,0 +1,11 @@
+Next Steps:
+
+Overarching goal: 
+	Add Gui with customizable options
+
+Direct next:
+	Slider for tempo modification
+
+Where to look:
+	TEMPO constant - make this variable according to the value of slider
+	

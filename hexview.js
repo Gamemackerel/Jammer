@@ -43,30 +43,3 @@ function HexGridView(hexGrid, positionX, positionY, radius) { //object definitio
     return result;
   }
 }
-
-// Draws a hexagon with the given position, radius, color, and label
-function drawHexagon(x, y, radius, color, display_text) {
-  fill(color);
-  stroke(50)
-  strokeWeight(2);
-  let angle = TWO_PI / 6;
-  beginShape();
-  for (let a = 0; a < TWO_PI; a += angle) {
-    let sx = x + cos(a) * radius;
-    let sy = y + sin(a) * radius;
-    vertex(sx, sy);
-  }
-  endShape(CLOSE);
-  noFill();
-
-  if (!(typeof display_text === "undefined")) {
-    strokeWeight(2);
-    textSize(FONTSIZE_SMALL)
-    text(display_text, x, y);
-  }
-}
-
-
-
-
-

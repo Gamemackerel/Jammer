@@ -57,7 +57,7 @@ function setup() {
   // initialize Jammer state
   grid = new HexGrid(14, 8);
   gridView = new HexGridView(grid, WIDTH / 2, HEIGHT / 2, RADIUS);
-  notes = new NoteMap(95)
+  notes = new NoteMap(harmonicTableMidiLayout(95))
 }
 
 function draw() {
@@ -76,39 +76,6 @@ function draw() {
     }
   }
   toastAdvocate(defaultToast)
-}
-
-function keyPressed() {
-  switch(keyCode) {
-    case 32: // space
-      if (!isRuleMaker) {
-        if (isPaused) {
-          unpause();
-        } else {
-          pause();
-        }
-      }
-        break;
-    case 82: // r
-      if (isPaused) {
-        startRuleGui();
-      }
-      break;
-    case 27: //esc
-      if (isRuleMaker) {
-        isRuleMaker = false;
-      }
-      break;
-    case 13: //enter
-      if (isRuleMaker) {
-        saveRule();
-        defaultToast = new ToastMessage("Saved", WIDTH / 2, HEIGHT / 2, 300);
-        defaultToast.start();
-        startRuleGui();
-      }
-      break;
-  }
-  return 0;
 }
 
 function pause() {
@@ -144,61 +111,9 @@ function saveRule() {
   grid.newRule(neighborhood, nextState);
 }
 
-function mousePressed() {
-  if (isRuleMaker) {
-    ruleMakerMouseEvent();
-  } else {
-    seedMakerMouseEvent();  
-  }
-  return false;
-}
-
-// When user clicks on tile, toggle its state and play its associated note
-function seedMakerMouseEvent() {
-  let gridIndex = gridView.getCR(mouseX, mouseY);
-    if (grid.isInBounds(gridIndex[0], gridIndex[1])) {
-      let newState = grid.getState(gridIndex[0], gridIndex[1]) ? 0 : 1;
-      grid.setState(gridIndex[0], gridIndex[1], newState);
-    }
-
-    if (grid.getState(gridIndex[0], gridIndex[1]) == 1) {
-      notes.playNote(gridIndex[0], gridIndex[1]);
-    }
-}
-
-// When user clicks on tile in rule definer, toggle tile state
-function ruleMakerMouseEvent() {
-  let gridIndex = ruleGridView.getCR(mouseX, mouseY);
-    if (ruleGrid.isInBounds(gridIndex[0], gridIndex[1])) {
-      let newState = ruleGrid.getState(gridIndex[0], gridIndex[1]) ? 0 : 1;
-      ruleGrid.setState(gridIndex[0], gridIndex[1], newState);
-    }
-}
-
-function shapeRuleGrid(ruleGrid) {
-  let center_of_attention = [3, 2];
-  let keepMask = {};
-  for (let i = 0; i < 12; i++) {
-    keepMask[(getNeighborCoords(center_of_attention[0], center_of_attention[1], i))] = true;
-  }
-
-  keepMask[center_of_attention] = true;
-  keepMask[[9,2]] = true;
-  
-  let trimMask = [];
-  for (let i = 0; i < 10; i++) {
-    for (let j = 0; j < 5; j++) {
-      if (!keepMask.hasOwnProperty([i,j])) {
-        trimMask.push([i,j,-1]);
-      }
-    }
-  }
-  ruleGrid.massSetState(trimMask);
-}
-
 // Grey out the current hex grid and overlay some instructions for
 // how to use the rule maker gui
-// TODO display all existing rules in mini version
+// TODO display all existing rules in minimap
 function drawRuleMakerOverlay() {
   // grey background
   fill(200, 200, 200, 220);
@@ -212,7 +127,7 @@ function drawRuleMakerOverlay() {
   textSize(FONTSIZE)
   text("New Transition Rule", WIDTH / 2, HEIGHT / 16);
   textSize(FONTSIZE_SMALL)
-  text("The hex on the right is the desired transition state and the complex on the left is the pattern to incite transition", WIDTH / 2, HEIGHT / 16 + 60);
+  text("The complex on the left is the pattern which incites state transition, and the hex on the right represents the state to transition to.", WIDTH / 2, HEIGHT / 16 + 60);
   text("Click to toggle tile states     -     Press Enter to save a new transition rule     -     Press Esc to exit the rule maker", WIDTH / 2, HEIGHT - HEIGHT / 16);
 
   // nice little arrow showing transition direction between 
@@ -226,7 +141,7 @@ function drawHeader() {
   stroke(0);
   fill(255);
   strokeWeight(3);
-  textSize(FONTSIZE * 3)
+  textSize(FONTSIZE * 2)
   text("JAMMER", WIDTH / 2, HEIGHT / 16);
 }
 
@@ -240,35 +155,3 @@ function drawPauseOverlay() {
   textSize(FONTSIZE_SMALL)
   text("Click to toggle tile states     -     Press R to define transition rules     -     Press Space to pause/unpause", WIDTH / 2, HEIGHT - HEIGHT / 16);
 }
-
-// Draw an arrow starting from start_x,start_y and ending at end_x,end_y
-function drawArrow(start_x, start_y, end_x, end_y) {
-  stroke(100);
-  strokeWeight(4);
-  line(start_x, start_y, end_x, end_y);
-  triangle(end_x, end_y, end_x - 4, end_y + 4, end_x - 4, end_y - 4)
-  noStroke();
-}
-
-// Given a rc index, highlight all of its neighbors
-// for debugging incorrect neighbor mapping
-function lightUpTheNeighborhood(column, row) {
-  // console.log("lighting up");
-  var nbs = []
-  for (let i = 0; i < 12; i++) {
-    nbs.push(grid.getNeighborCoordsWithWrap(column, row, i));
-  }
-  
-  for (var i = 0; i < nbs.length; i++) {
-    let column = nbs[i][0]
-    let row = nbs[i][1]
-
-    column = column % grid.columns
-    row = row % grid.rows
-    
-    let xy = gridView.getXY(column, row);
-    drawHexagon(xy[0], xy[1], RADIUS, 200, i + ' : (' + [row, column] + ')');
-    textSize(FONTSIZE_SMALL)
-  }
-}
-
