@@ -75,7 +75,7 @@ function draw() {
       drawPauseOverlay();
     }
   }
-  toastAdvocate(defaultToast)
+  toastAdvocate(defaultToast);
 }
 
 function pause() {
