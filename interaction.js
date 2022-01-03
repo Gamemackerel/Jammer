@@ -61,12 +61,12 @@ function keyPressed() {
       }
       break;
     case 80:
-      if (isPaused && !isFreePlay) {
-        startFreePlay();
-      }
       if (isFreePlay) {
         isFreePlay = false;
+      } else if (isPaused && !isFreePlay) {
+        startFreePlay();
       }
+      break;
     case 27: //esc
       if (isRuleMaker) {
         isRuleMaker = false;
