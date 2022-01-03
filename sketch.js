@@ -27,6 +27,7 @@ var isPaused = true;
 var isRuleMaker = false;
 var isloaded = false;
 var isToasting = false;
+var isFreePlay = false;
 
 // load fonts and plugins before setup
 function preload() {
@@ -37,7 +38,7 @@ function preload() {
   // load the midi soundfont
   MIDI.loadPlugin({
     soundfontUrl: "./soundfont/",
-    instrument: "acoustic_grand_piano", // or multiple instruments
+    instrument: "acoustic_grand_piano",
     onsuccess: function() {
       isloaded = true;
       }
@@ -75,7 +76,7 @@ function draw() {
       drawPauseOverlay();
     }
   }
-  toastAdvocate(defaultToast);
+  toaster(defaultToast);
 }
 
 function pause() {
@@ -86,6 +87,11 @@ function pause() {
 function unpause() {
   isPaused = false;
   stepTimer = window.setInterval(timerUp, 1000 / TEMPO);
+}
+
+function startFreePlay() {
+  grid = new HexGrid(14, 8);  
+  isFreePlay = true;
 }
 
 function timerUp() {
@@ -153,5 +159,5 @@ function drawPauseOverlay() {
   textSize(FONTSIZE);
   text("Paused", WIDTH / 2, HEIGHT / 2);
   textSize(FONTSIZE_SMALL);
-  text("Click to toggle tile states     -     Press R to define transition rules     -     Press Space to pause/unpause", WIDTH / 2, HEIGHT - HEIGHT / 16);
+  text("Click to toggle tile states     -     Press R to define transition rules     -     Press Space to pause/unpause     -     Press P to enter free play mode", WIDTH / 2, HEIGHT - HEIGHT / 16);
 }

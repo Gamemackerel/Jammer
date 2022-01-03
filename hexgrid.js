@@ -55,7 +55,7 @@ function HexGrid(columns, rows) { //object definition
   this.massSetState = function(coordsAndStates) {
     for (var i = 0; i < coordsAndStates.length; i++) {
       this.setState(coordsAndStates[i][0], coordsAndStates[i][1], coordsAndStates[i][2]);
-    }      
+    }
   }
 
   this.isInBounds = function(column, row) {

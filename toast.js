@@ -26,7 +26,7 @@ function ToastMessage(message, x, y, duration) {
     }
 }
 
-function toastAdvocate(toast) {
+function toaster(toast) {
   if(toast && toast.isActive) {
     toast.drawToast()
   }

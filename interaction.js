@@ -1,10 +1,26 @@
 function mousePressed() {
-  if (isRuleMaker) {
+  if (isFreePlay) {
+    freePlayMouseEvent();
+  } else if (isRuleMaker) {
     ruleMakerMouseEvent();
   } else {
     seedMakerMouseEvent();  
   }
   return false;
+}
+
+// When user clicks on tile, play its associated note
+function freePlaymouseEvent() {
+  let gridIndex = gridView.getCR(mouseX, mouseY);
+    if (grid.isInBounds(gridIndex[0], gridIndex[1])) {
+      grid.setState(gridIndex[0], gridIndex[1], 1);
+    }
+
+    if (grid.getState(gridIndex[0], gridIndex[1]) == 1) {
+      notes.playNote(gridIndex[0], gridIndex[1]);
+      sleep(200)
+      grid.setState(gridIndex[0], gridIndex[1], 0);
+    }
 }
 
 // When user clicks on tile, toggle its state and play its associated note
@@ -45,6 +61,13 @@ function keyPressed() {
         startRuleGui();
       }
       break;
+    case 80:
+      if (isPaused && !isFreePlay) {
+        startFreePlay();
+      }
+      if (isFreePlay) {
+        isFreePlay = false;
+      }
     case 27: //esc
       if (isRuleMaker) {
         isRuleMaker = false;
