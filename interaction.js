@@ -10,7 +10,7 @@ function mousePressed() {
 }
 
 // When user clicks on tile, play its associated note
-function freePlaymouseEvent() {
+function freePlayMouseEvent() {
   let gridIndex = gridView.getCR(mouseX, mouseY);
     if (grid.isInBounds(gridIndex[0], gridIndex[1])) {
       grid.setState(gridIndex[0], gridIndex[1], 1);
