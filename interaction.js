@@ -18,7 +18,7 @@ function freePlayMouseEvent() {
 
     if (grid.getState(gridIndex[0], gridIndex[1]) == 1) {
       notes.playNote(gridIndex[0], gridIndex[1]);
-      setTimeout(() => grid.setState(gridIndex[0], gridIndex[1], 1), 200)
+      setTimeout(() => grid.setState(gridIndex[0], gridIndex[1], 0), 200)
     }
 }
 
