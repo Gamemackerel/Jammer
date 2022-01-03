@@ -68,7 +68,7 @@ function draw() {
 
   // Show different UI elements depending on the 
   // state of the application
-  if (isPaused) {
+  if (isPaused && !isFreePlay) {
     if (isRuleMaker) {
       drawRuleMakerOverlay();
       ruleGridView.display(); 

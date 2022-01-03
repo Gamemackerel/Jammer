@@ -1,5 +1,3 @@
-function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-
 // Given a rc index, highlight all of its neighbors
 // for debugging
 function lightUpTheNeighborhood(column, row) {
