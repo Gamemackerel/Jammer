@@ -90,7 +90,7 @@ function unpause() {
 }
 
 function startFreePlay() {
-  grid = new HexGrid(14, 8);  
+  grid.clearState()
   isFreePlay = true;
 }
 

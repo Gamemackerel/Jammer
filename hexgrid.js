@@ -58,6 +58,15 @@ function HexGrid(columns, rows) { //object definition
     }
   }
 
+  this.clearState = function() {
+    for (let i = 0; i < this.columns; i++) {
+      this.gridModel[i] = [];
+      for (let j = 0; j < this.rows; j++) {
+        this.gridModel[i][j] = 0;
+      }
+    }
+  }
+
   this.isInBounds = function(column, row) {
     return (((column >= 0) && (column < this.columns))
         && ((row >= 0) && (row < this.rows)));
